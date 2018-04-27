@@ -1,4 +1,4 @@
-var lotteryABI =  [
+var lotteryABI = [
     {
       "constant": true,
       "inputs": [
@@ -15,6 +15,20 @@ var lotteryABI =  [
         },
         {
           "name": "iterationStamp",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "bettingIteration",
+      "outputs": [
+        {
+          "name": "",
           "type": "uint256"
         }
       ],

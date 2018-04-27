@@ -22,7 +22,7 @@ contract Lottery {
   address currentWinner;
   // as we are not going to clear bets to spare gas we need to keep track if
   // each bet has been made in this iteration
-  uint bettingIteration;
+  uint public bettingIteration;
 
   mapping (bytes32 => BetSender) public hashBetToOwner;
   bytes32[] public listHashes;

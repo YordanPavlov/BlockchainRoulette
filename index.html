@@ -14,12 +14,15 @@ c<!DOCTYPE html>
     <script>
       var lottery;
       var userAccount;
+      var bettingStage = 0;
+      var betsRetrieved = 0;
+      var numBetsInContract = 0;
 
       function startApp() {
 
         //var lotteryAddress = "0x7a316b024b2739f45b34565e1aaa5dd3f4f9d82a";
         //var lotteryAddress = "0x6fbbb7127ec31340dbb640f4e5ab3505cdaa89aa";
-        var lotteryAddress = "0x18dc8a6d033b21423cdf09c806e14f75e5ce3231";
+        var lotteryAddress = "0xb69c72327585f74479797f20b14b1b34534ce828";
         lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
         /*var accountInterval = setInterval(function() {
@@ -92,7 +95,6 @@ c<!DOCTYPE html>
           $("#txStatus").text("Successfully reset contract with new hash " + resetHash + "!");
           // Transaction was accepted into the blockchain, let's redraw the UI
           // TODO show bets
-          rePrintBets();
         })
         .on("error", function(error) {
           // Do something to alert the user their transaction has failed
@@ -107,7 +109,6 @@ c<!DOCTYPE html>
         .on("receipt", function(receipt) {
           $("#txStatus").text("Winning number is now revealed!");
           // Transaction was accepted into the blockchain, let's redraw the UI
-          rePrintBets();
         })
         .on("error", function(error) {
           // Do something to alert the user their transaction has failed
@@ -115,20 +116,33 @@ c<!DOCTYPE html>
         });
       }
 
-      function showAvailableBets(result) {
+      function eraseBetsTable() {
         var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
 
-        // Insert a row in the table at the last row
-        var newRow   = tableRef.insertRow(tableRef.rows.length);
+console.log("Rows num is" + tableRef.rows.length);
+      // Delete all rows but the first one, which we use as a header
+       for(var i = tableRef.rows.length-1; i>0; --i) {
+          tableRef.deleteRow(i);
+        }
+      }
 
-        // Insert a cell in the row at index 0
-        var newCell  = newRow.insertCell(0);
+      function showAvailableBets(listHashes) {
+        var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
 
-        // Append a text node to the cell
-        console.log(result);
 
-        //var newText  = document.createTextNode('New row, size is ' + result.listHashesCurrentSize);
-        //newCell.appendChild(newText);
+
+        for(var i =0; i < listHashes.length; ++i) {
+          // Insert a row in the table at the last row
+          var newRow   = tableRef.insertRow(tableRef.rows.length);
+
+          // Insert a cell in the row at index 0
+          var newCell  = newRow.insertCell(0);
+
+          // Append a text node to the cell
+
+          var newText  = document.createTextNode(listHashes[i]);
+          newCell.appendChild(newText);
+        }
       }
 
       function checkMetamaskAndStart() {
@@ -145,14 +159,40 @@ c<!DOCTYPE html>
         startApp();
       }
 
+
       function rePrintBets() {
-           var numBets;
-           lottery.methods.listHashesCurrentSize().call(function (error, result) {
-             numBets = result;
-             console.log(result);
-           });
-           console.log(numBets);
-          showAvailableBets(numBets);
+
+           var listHashes = [];
+
+           function getHashFromContract() {
+             lottery.methods.listHashes(betsRetrieved).call(function (error, result) {
+               listHashes.push(result);
+               ++betsRetrieved;
+               if(betsRetrieved < numBetsInContract) {
+                 getHashFromContract();
+               } else {
+
+                 showAvailableBets(listHashes);
+               }
+             })
+           }
+
+           lottery.methods.bettingIteration().call(function (error, result) {
+             // If the contract has been reset - all has to be reprinted
+             console.log("Betting iteration is " + result);
+              if(result > bettingStage) {
+                betsRetrieved = 0;
+                bettingStage = result;
+                eraseBetsTable();
+              }
+
+              lottery.methods.listHashesCurrentSize().call(function (error, result) {
+                   numBetsInContract = result;
+                   if(betsRetrieved < numBetsInContract) {
+                     getHashFromContract();
+                   }
+              })
+         })
       }
 
     </script>
