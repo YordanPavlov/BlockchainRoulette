@@ -9,6 +9,8 @@ c<!DOCTYPE html>
   </head>
   <body>
     <div id="txStatus"></div>
+    <div id="revealedNumber"></div>
+    <div id="chosenWinner"></div>
     <div id="bets"></div>
 
     <script>
@@ -17,12 +19,14 @@ c<!DOCTYPE html>
       var bettingStage = 0;
       var betsRetrieved = 0;
       var numBetsInContract = 0;
+      var revealedNumber = 0;
+      var finalWinner = 0;
 
       function startApp() {
 
         //var lotteryAddress = "0x7a316b024b2739f45b34565e1aaa5dd3f4f9d82a";
         //var lotteryAddress = "0x6fbbb7127ec31340dbb640f4e5ab3505cdaa89aa";
-        var lotteryAddress = "0xb69c72327585f74479797f20b14b1b34534ce828";
+        var lotteryAddress = "0x8f84da3472079a8ef1fe7207f13283133088005c";
         lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
         /*var accountInterval = setInterval(function() {
@@ -102,9 +106,9 @@ c<!DOCTYPE html>
         });
       }
 
-      function revealWinningNumber(id) {
-        var winningNumberHash = document.getElementById('revealWinning').value;
-        return lottery.methods.revealWinningNumber(winningNumberHash)
+      function revealNumber() {
+        var revealedNumberHash = document.getElementById('revealWinning').value;
+        return lottery.methods.revealNumber(revealedNumberHash)
         .send({ from: userAccount })
         .on("receipt", function(receipt) {
           $("#txStatus").text("Winning number is now revealed!");
@@ -159,6 +163,33 @@ console.log("Rows num is" + tableRef.rows.length);
         startApp();
       }
 
+      function claimBet() {
+        var claimBet = document.getElementById('claimBet').value;
+
+        return lottery.methods.claimBet(claimBet)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Bet is being claimed.");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
+      function awardWinner() {
+        return lottery.methods.awardWinner()
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Winner is rewarded.");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
 
       function rePrintBets() {
 
@@ -182,16 +213,45 @@ console.log("Rows num is" + tableRef.rows.length);
              console.log("Betting iteration is " + result);
               if(result > bettingStage) {
                 betsRetrieved = 0;
+                revealedNumber = 0;
+                revealedNumber = 0;
+                finalWinner = 0;
                 bettingStage = result;
                 eraseBetsTable();
               }
 
-              lottery.methods.listHashesCurrentSize().call(function (error, result) {
-                   numBetsInContract = result;
-                   if(betsRetrieved < numBetsInContract) {
-                     getHashFromContract();
-                   }
-              })
+              // If we are still accepting new bets - check for such
+              if(0 == revealedNumber) {
+                lottery.methods.revealedNumber().call(function (error, result) {
+                  if(result > 0) {
+                    revealedNumber = result;
+                    $("#revealedNumber").text("Chosen number is revealed as " + result);
+                  }
+                })
+
+                // Check for new hashes
+                lottery.methods.listHashesCurrentSize().call(function (error, result) {
+                     numBetsInContract = result;
+                     if(betsRetrieved < numBetsInContract) {
+                       getHashFromContract();
+                     }
+                })
+              } else if(0 == finalWinner){
+                 lottery.methods.gamePhase().call(function (error, result) {
+                     if(2 == result) {
+                       lottery.methods.currentWinner().call(function (error, result) {
+                         finalWinner = result;
+                         lottery.methods.closestDifference().call(function (error, result) {
+                           var finalDifference = result;
+
+                           $("#chosenWinner").text("Chosen winner is: " + finalWinner +
+                           "with difference of " + finalDifference);
+                       })
+                     })
+                    }
+                })
+              }
+
          })
       }
 
@@ -216,7 +276,16 @@ console.log("Rows num is" + tableRef.rows.length);
         <tr>
           <td>Reveal winning number</td>
           <td> <input type="text" name="revealWinning" id="revealWinning"><br> </td>
-          <td> <button onclick="placeBet()">Place bet</button> </td>
+          <td> <button onclick="revealNumber()">Reveal winning</button> </td>
+        </tr>
+        <tr>
+          <td>Claim bet</td>
+          <td> <input type="text" name="claimBet" id="claimBet"><br> </td>
+          <td> <button onclick="claimBet()">Claim bet</button> </td>
+        </tr>
+        <tr>
+          <td>Award winner</td>
+          <td> <button onclick="awardWinner()">Award winner</button> </td>
         </tr>
     </table>
 

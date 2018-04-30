@@ -10,16 +10,16 @@ contract Lottery {
 
   // 0 - accepting bets
   // 1 - revealed winning number, bets are not accepted only claims
-  uint8 gamePhase = 0;
+  uint8 public gamePhase = 0;
   uint8 maxNumBets = 10;
   // Find out how to use hashBetToOwner.size()
   uint curNumBets = 0;
   bytes32 hashWinningNumber;
   address public owner;
-  uint winningNumber = 0;
+  uint public revealedNumber = 0;
   uint8 betsClaimed = 0;
-  int closestDifference = 1000000;
-  address currentWinner;
+  int public closestDifference = 1000000;
+  address public currentWinner;
   // as we are not going to clear bets to spare gas we need to keep track if
   // each bet has been made in this iteration
   uint public bettingIteration;
@@ -110,15 +110,15 @@ contract Lottery {
     return result;
 }
 
-  function revealWinningNumber(string _seedPlusNumber) public {
+  function revealNumber(string _seedPlusNumber) public {
       require(msg.sender == owner);
       require(0 == gamePhase);
-      uint _winningNumber = _str2uint(bytes(_seedPlusNumber));
-      require(_winningNumber > 0 && _winningNumber <= 1000000);
+      uint _revealedNumber = _str2uint(bytes(_seedPlusNumber));
+      require(_revealedNumber > 0 && _revealedNumber <= 1000000);
       bytes32 _hashWinningNumber = keccak256(_seedPlusNumber);
       require(hashWinningNumber == _hashWinningNumber);
 
-      winningNumber = _winningNumber;
+      revealedNumber = _revealedNumber;
       gamePhase = 1;
   }
 
@@ -150,7 +150,7 @@ contract Lottery {
       hashBetToOwner[hashBet].iterationStamp = 0;
       ++betsClaimed;
 
-      int difference = int(_claimNumber - winningNumber);
+      int difference = int(_claimNumber - revealedNumber);
       if(difference < 0) {
         difference *= -1;
       }
@@ -161,15 +161,19 @@ contract Lottery {
       }
   }
 
+  function awardWinner() public {
+    require(msg.sender == owner);
+    require(1 == gamePhase);
+    //AnnounceWinner(closestDifference, currentWinner);
+    gamePhase = 2;
+    currentWinner.transfer(address(this).balance);
+  }
+
   function reset(bytes32 _hashWinningNumber) public {
       require(msg.sender == owner);
-      if(gamePhase > 0) {
-        AnnounceWinner(closestDifference, currentWinner);
-        currentWinner.transfer(address(this).balance);
-      }
       gamePhase = 0;
       curNumBets = 0;
-      winningNumber = 0;
+      revealedNumber = 0;
       betsClaimed = 0;
       closestDifference = 1000000;
       hashWinningNumber = _hashWinningNumber;

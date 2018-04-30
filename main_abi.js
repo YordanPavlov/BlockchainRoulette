@@ -39,6 +39,34 @@ var lotteryABI = [
     {
       "constant": true,
       "inputs": [],
+      "name": "revealedNumber",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "gamePhase",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
       "name": "listHashesCurrentSize",
       "outputs": [
         {
@@ -58,6 +86,34 @@ var lotteryABI = [
         {
           "name": "",
           "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "currentWinner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "closestDifference",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
         }
       ],
       "payable": false,
@@ -131,7 +187,7 @@ var lotteryABI = [
           "type": "string"
         }
       ],
-      "name": "revealWinningNumber",
+      "name": "revealNumber",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -160,6 +216,15 @@ var lotteryABI = [
         }
       ],
       "name": "claimBet",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "awardWinner",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
