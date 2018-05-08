@@ -3,292 +3,81 @@ c<!DOCTYPE html>
   <head>
     <meta charset="UTF-8">
     <title>Lottery front-end</title>
-    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="cssIndex.css" />
+    <script language="javascript" type="text/javascript" src="jquery.min.js"></script>
     <script language="javascript" type="text/javascript" src="web3.js"></script>
     <script language="javascript" type="text/javascript" src="main_abi.js"></script>
+
+    <script language="javascript" type="text/javascript" src="js/commonControls.js"></script>
+    <script language="javascript" type="text/javascript" src="js/userControls.js"></script>
+    <script language="javascript" type="text/javascript" src="js/ownerControls.js"></script>
   </head>
-  <body>
-    <div id="txStatus"></div>
+  <body onload="checkMetamaskAndStart()">
+
+    <div class="title">
+      Game status:
+    </div>
+    <table>
+      <tr>
+        <td>Game status:</td>
+        <td>
+          <div id="txStatus">Not connected to contract</div>
+        </td>
+      </tr>
+      <tr>
+        <td>Game start time:</td>
+        <td>
+          <div id="txTimestamp"></div>
+        </td>
+      </tr>
+    </table>
     <div id="revealedNumber"></div>
     <div id="chosenWinner"></div>
     <div id="bets"></div>
 
-    <script>
-      var lottery;
-      var userAccount;
-      var bettingStage = 0;
-      var betsRetrieved = 0;
-      var numBetsInContract = 0;
-      var revealedNumber = 0;
-      var finalWinner = 0;
 
-      function startApp() {
-
-        //var lotteryAddress = "0x7a316b024b2739f45b34565e1aaa5dd3f4f9d82a";
-        //var lotteryAddress = "0x6fbbb7127ec31340dbb640f4e5ab3505cdaa89aa";
-        var lotteryAddress = "0x8f84da3472079a8ef1fe7207f13283133088005c";
-        lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
-
-        /*var accountInterval = setInterval(function() {
-          // Check if account has changed
-          if (web3.eth.accounts[0] !== userAccount) {
-            userAccount = web3.eth.accounts[0];
-            // Call a function to update the UI with the new account
-            getZombiesByOwner(userAccount)
-            .then(displayZombies);
-          }
-        }, 100);*/
-
-        web3js.eth.getAccounts(function(error, accounts) {
-          userAccount = accounts[0];
-        });
-
-        /*lottery.events.NewBet((err, response) => {  //set up listener for the Newbet event
-                //once the event has been detected, take actions as desired
-                $("#bets").append(`<div class="zombie">
-                  <ul>
-                    <li>Name: ${response}</li>
-                  </ul>
-                </div>`);
-                console.log("New event received");
-              });*/
-        lottery.events.NewBet({},{ fromBlock: 0, toBlock: 'latest' },
-          function(error, event){ console.log(event); })
-                      .on('data', function(event){
-                            console.log(event);
-                      })
-        //var web3Infura = new Web3(new Web3.providers.WebsocketProvider("wss://ropsten.infura.io/ws"));
-        //var czEvents = new web3Infura.eth.Contract(lotteryABI, lotteryAddress);
-
-        setInterval(rePrintBets, 10000);
-
-        }
-
-      function placeBet() {
-        var hashBet = document.getElementById('placeBetInput').value;
-        // This is going to take a while, so update the UI to let the user know
-        // the transaction has been sent
-        $("#txStatus").text("Placing bet on the blockchain. This may take a while...");
-        // Send the tx to our contract:
-
-        return lottery.methods.acceptBet(hashBet)
-        .send({ from: userAccount, value: web3.toWei(1, 'ether') })
-        .on("receipt", function(receipt) {
-          $("#txStatus").text("Successfully placed bet with hash " + hashBet + "!");
-          // Transaction was accepted into the blockchain, let's redraw the UI
-          // TODO show bets
-          //showBets();
-          //getZombiesByOwner(userAccount).then(displayZombies);
-        })
-        .on("error", function(error) {
-          // Do something to alert the user their transaction has failed
-          $("#txStatus").text(error);
-        });
-      }
-
-      function reset() {
-        var resetHash = document.getElementById('resetInput').value;
-        // This is going to take a while, so update the UI to let the user know
-        // the transaction has been sent
-        $("#txStatus").text("Resetting winning hash to " + resetHash + "This may take a while...");
-        // Send the tx to our contract:
-        console.log(resetHash);
-        return lottery.methods.reset(resetHash)
-        .send({ from: userAccount })
-        .on("receipt", function(receipt) {
-          $("#txStatus").text("Successfully reset contract with new hash " + resetHash + "!");
-          // Transaction was accepted into the blockchain, let's redraw the UI
-          // TODO show bets
-        })
-        .on("error", function(error) {
-          // Do something to alert the user their transaction has failed
-          $("#txStatus").text(error);
-        });
-      }
-
-      function revealNumber() {
-        var revealedNumberHash = document.getElementById('revealWinning').value;
-        return lottery.methods.revealNumber(revealedNumberHash)
-        .send({ from: userAccount })
-        .on("receipt", function(receipt) {
-          $("#txStatus").text("Winning number is now revealed!");
-          // Transaction was accepted into the blockchain, let's redraw the UI
-        })
-        .on("error", function(error) {
-          // Do something to alert the user their transaction has failed
-          $("#txStatus").text(error);
-        });
-      }
-
-      function eraseBetsTable() {
-        var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
-
-console.log("Rows num is" + tableRef.rows.length);
-      // Delete all rows but the first one, which we use as a header
-       for(var i = tableRef.rows.length-1; i>0; --i) {
-          tableRef.deleteRow(i);
-        }
-      }
-
-      function showAvailableBets(listHashes) {
-        var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
-
-
-
-        for(var i =0; i < listHashes.length; ++i) {
-          // Insert a row in the table at the last row
-          var newRow   = tableRef.insertRow(tableRef.rows.length);
-
-          // Insert a cell in the row at index 0
-          var newCell  = newRow.insertCell(0);
-
-          // Append a text node to the cell
-
-          var newText  = document.createTextNode(listHashes[i]);
-          newCell.appendChild(newText);
-        }
-      }
-
-      function checkMetamaskAndStart() {
-
-        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
-        if (typeof web3 !== 'undefined') {
-          // Use Mist/MetaMask's provider
-          web3js = new Web3(web3.currentProvider);
-        } else {
-          alert("Missing Metamask");
-        }
-
-        // Now you can start your app & access web3 freely:
-        startApp();
-      }
-
-      function claimBet() {
-        var claimBet = document.getElementById('claimBet').value;
-
-        return lottery.methods.claimBet(claimBet)
-        .send({ from: userAccount })
-        .on("receipt", function(receipt) {
-          $("#txStatus").text("Bet is being claimed.");
-          // Transaction was accepted into the blockchain, let's redraw the UI
-        })
-        .on("error", function(error) {
-          // Do something to alert the user their transaction has failed
-          $("#txStatus").text(error);
-        });
-      }
-
-      function awardWinner() {
-        return lottery.methods.awardWinner()
-        .send({ from: userAccount })
-        .on("receipt", function(receipt) {
-          $("#txStatus").text("Winner is rewarded.");
-          // Transaction was accepted into the blockchain, let's redraw the UI
-        })
-        .on("error", function(error) {
-          // Do something to alert the user their transaction has failed
-          $("#txStatus").text(error);
-        });
-      }
-
-      function rePrintBets() {
-
-           var listHashes = [];
-
-           function getHashFromContract() {
-             lottery.methods.listHashes(betsRetrieved).call(function (error, result) {
-               listHashes.push(result);
-               ++betsRetrieved;
-               if(betsRetrieved < numBetsInContract) {
-                 getHashFromContract();
-               } else {
-
-                 showAvailableBets(listHashes);
-               }
-             })
-           }
-
-           lottery.methods.bettingIteration().call(function (error, result) {
-             // If the contract has been reset - all has to be reprinted
-             console.log("Betting iteration is " + result);
-              if(result > bettingStage) {
-                betsRetrieved = 0;
-                revealedNumber = 0;
-                revealedNumber = 0;
-                finalWinner = 0;
-                bettingStage = result;
-                eraseBetsTable();
-              }
-
-              // If we are still accepting new bets - check for such
-              if(0 == revealedNumber) {
-                lottery.methods.revealedNumber().call(function (error, result) {
-                  if(result > 0) {
-                    revealedNumber = result;
-                    $("#revealedNumber").text("Chosen number is revealed as " + result);
-                  }
-                })
-
-                // Check for new hashes
-                lottery.methods.listHashesCurrentSize().call(function (error, result) {
-                     numBetsInContract = result;
-                     if(betsRetrieved < numBetsInContract) {
-                       getHashFromContract();
-                     }
-                })
-              } else if(0 == finalWinner){
-                 lottery.methods.gamePhase().call(function (error, result) {
-                     if(2 == result) {
-                       lottery.methods.currentWinner().call(function (error, result) {
-                         finalWinner = result;
-                         lottery.methods.closestDifference().call(function (error, result) {
-                           var finalDifference = result;
-
-                           $("#chosenWinner").text("Chosen winner is: " + finalWinner +
-                           "with difference of " + finalDifference);
-                       })
-                     })
-                    }
-                })
-              }
-
-         })
-      }
-
-    </script>
-
-    <table>
-        <tr>
-          <td>Connect to contract </td>
-          <td> </td>
-          <td> <input id="Connect" type="button" value="Connect" onclick="checkMetamaskAndStart();" /></td>
-        </tr>
-        <tr>
-          <td>Restart contract</td>
-          <td> <input type="text" name="resetInput" id="resetInput"><br> </td>
-          <td> <button onclick="reset()">Restart</button> </td>
-        </tr>
+    <div id="userControls">
+      <div class="title">
+        User controls
+      </div>
+      <table>
         <tr>
           <td>Place bet with hash</td>
           <td> <input type="text" name="placeBetInput" id="placeBetInput"><br> </td>
           <td> <button onclick="placeBet()">Place bet</button> </td>
         </tr>
         <tr>
-          <td>Reveal winning number</td>
-          <td> <input type="text" name="revealWinning" id="revealWinning"><br> </td>
-          <td> <button onclick="revealNumber()">Reveal winning</button> </td>
-        </tr>
-        <tr>
           <td>Claim bet</td>
           <td> <input type="text" name="claimBet" id="claimBet"><br> </td>
           <td> <button onclick="claimBet()">Claim bet</button> </td>
         </tr>
-        <tr>
-          <td>Award winner</td>
-          <td> <button onclick="awardWinner()">Award winner</button> </td>
-        </tr>
-    </table>
+      </table>
+    </div>
+    <div id="adminControls">
+      <div class="title">
+        Admin controls
+      </div>
+      <table>
+          <tr>
+            <td>Restart contract</td>
+            <td> <input type="text" name="resetInput" id="resetInput"><br> </td>
+            <td> <button onclick="reset()">Restart</button> </td>
+          </tr>
+          <tr>
+            <td>Reveal winning number</td>
+            <td> <input type="text" name="revealWinning" id="revealWinning"><br> </td>
+            <td> <button onclick="revealNumber()">Reveal winning</button> </td>
+          </tr>
+          <tr>
+            <td>Award winner</td>
+            <td> <button onclick="awardWinner()">Award winner</button> </td>
+          </tr>
+      </table>
+    </div>
 
+    <div class="title">
+      Received bets
+    </div>
     <table id="betsTable">
         <tr>
           <td>Address of participant </td>

@@ -11,7 +11,7 @@ contract Lottery {
   // 0 - accepting bets
   // 1 - revealed winning number, bets are not accepted only claims
   uint8 public gamePhase = 0;
-  uint8 maxNumBets = 10;
+  uint public currentRoundTimestamp;
   // Find out how to use hashBetToOwner.size()
   uint curNumBets = 0;
   bytes32 hashWinningNumber;
@@ -23,6 +23,7 @@ contract Lottery {
   // as we are not going to clear bets to spare gas we need to keep track if
   // each bet has been made in this iteration
   uint public bettingIteration;
+  uint constant maxUintValue = 2**256 - 1;
 
   mapping (bytes32 => BetSender) public hashBetToOwner;
   bytes32[] public listHashes;
@@ -115,6 +116,7 @@ contract Lottery {
       require(0 == gamePhase);
       uint _revealedNumber = _str2uint(bytes(_seedPlusNumber));
       require(_revealedNumber > 0 && _revealedNumber <= 1000000);
+      // Check if keccak256 can accept bytes32 as argument, if so do the conversion in JS to save gas
       bytes32 _hashWinningNumber = keccak256(_seedPlusNumber);
       require(hashWinningNumber == _hashWinningNumber);
 
@@ -178,8 +180,14 @@ contract Lottery {
       closestDifference = 1000000;
       hashWinningNumber = _hashWinningNumber;
       currentWinner = owner;
-      ++bettingIteration;
+      // Handle the betting iteration overflow
+      if(maxUintValue == bettingIteration) {
+        bettingIteration = 1;
+      } else {
+        ++bettingIteration;
+      }
       listHashesCurrentSize = 0;
+      currentRoundTimestamp = block.timestamp;
   }
 
 
