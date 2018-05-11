@@ -10,8 +10,9 @@ contract Lottery {
 
   // 0 - accepting bets
   // 1 - revealed winning number, bets are not accepted only claims
+  // 2 - winner is chosen among claims
   uint8 public gamePhase = 0;
-  uint public currentRoundTimestamp;
+  uint public currentRoundTimestamp = 1;
   // Find out how to use hashBetToOwner.size()
   uint curNumBets = 0;
   bytes32 hashWinningNumber;
@@ -110,6 +111,10 @@ contract Lottery {
 
     return result;
 }
+
+  function getAddressOwner(bytes32 hash) public view returns (address){
+    return hashBetToOwner[hash].beneficiary;
+  }
 
   function revealNumber(string _seedPlusNumber) public {
       require(msg.sender == owner);

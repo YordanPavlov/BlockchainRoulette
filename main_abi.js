@@ -1,4 +1,4 @@
-var lotteryABI = [
+var lotteryABI =  [
     {
       "constant": true,
       "inputs": [
@@ -192,6 +192,25 @@ var lotteryABI = [
       ],
       "name": "AnnounceWinner",
       "type": "event"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "hash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getAddressOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "constant": false,
