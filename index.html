@@ -19,15 +19,21 @@ c<!DOCTYPE html>
     </div>
     <table>
       <tr>
-        <td>Game status:</td>
+        <td class="firstCollumn">Game status:</td>
         <td>
           <div id="txStatus">Not connected to contract</div>
         </td>
       </tr>
       <tr>
-        <td>Game start time:</td>
+        <td class="firstCollumn">Game start time:</td>
         <td>
           <div id="txTimestamp"></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="firstCollumn">Your last action:</td>
+        <td>
+          <div id="txLastAction"></div>
         </td>
       </tr>
     </table>
@@ -42,14 +48,22 @@ c<!DOCTYPE html>
       </div>
       <table>
         <tr>
-          <td>Place bet with hash</td>
-          <td> <input type="text" name="placeBetInput" id="placeBetInput"><br> </td>
-          <td> <button onclick="placeBet()">Place bet</button> </td>
+          <td class="firstCollumn">Place bet with hash</td>
+          <td> <input class="wideInput" type="text" name="placeBetInput" id="placeBetInput"><br> </td>
+          <td> <button class="button" onclick="placeBet()">Place bet</button> </td>
+          <td>  <div class="help-tip">
+                  <p>A bet is worth 1 ether. Contract status should be "Accepting bets". Generate your hash as described below.</p>
+                </div>
+          </td>
         </tr>
         <tr>
-          <td>Claim bet</td>
-          <td> <input type="text" name="claimBet" id="claimBet"><br> </td>
-          <td> <button onclick="claimBet()">Claim bet</button> </td>
+          <td class="firstCollumn">Claim bet</td>
+          <td> <input class="wideInput" type="text" name="claimBet" id="claimBet"><br> </td>
+          <td> <button class="button" onclick="claimBet()">Claim bet</button> </td>
+          <td>  <div class="help-tip">
+                  <p>Claim your bet by specifying the original seed.number combination you hashed. Contract status should be "Accepting claims". </p>
+                </div>
+          </td>
         </tr>
       </table>
     </div>
@@ -59,18 +73,31 @@ c<!DOCTYPE html>
       </div>
       <table>
           <tr>
-            <td>Restart contract</td>
-            <td> <input type="text" name="resetInput" id="resetInput"><br> </td>
-            <td> <button onclick="reset()">Restart</button> </td>
+            <td class="firstCollumn">Restart contract</td>
+            <td> <input class="wideInput" type="text" name="resetInput" id="resetInput"><br> </td>
+            <td> <button class="button" onclick="reset()">Restart</button> </td>
+            <td>  <div class="help-tip">
+                    <p>To be executed by the contract owner only. Start a new round of the game by choosing a new secret number. Generate your has as described below. </p>
+                  </div>
+            </td>
           </tr>
           <tr>
-            <td>Reveal winning number</td>
-            <td> <input type="text" name="revealWinning" id="revealWinning"><br> </td>
-            <td> <button onclick="revealNumber()">Reveal winning</button> </td>
+            <td class="firstCollumn">Reveal winning number</td>
+            <td> <input class="wideInput" type="text" name="revealWinning" id="revealWinning"><br> </td>
+            <td> <button class="button" onclick="revealNumber()">Reveal</button> </td>
+            <td>  <div class="help-tip">
+                    <p>To be executed by the contract owner only. Reveal the secret number by specifying the original seed.number combination you hashed. </p>
+                  </div>
+            </td>
           </tr>
           <tr>
-            <td>Award winner</td>
-            <td> <button onclick="awardWinner()">Award winner</button> </td>
+            <td class="firstCollumn">Award winner</td>
+            <td></td>
+            <td> <button class="button" onclick="awardWinner()">Award winner</button> </td>
+            <td>  <div class="help-tip">
+                    <p>To be executed by the contract owner only. Stop accepting claims and reward the owner of the bet which is closest to the secret number. </p>
+                  </div>
+            </td>
           </tr>
       </table>
     </div>
@@ -78,8 +105,8 @@ c<!DOCTYPE html>
     <div class="title">
       Received bets
     </div>
-    <table id="betsTable">
-        <tr>
+    <table class="centeredTable" id="betsTable">
+        <tr class="tableTitle">
           <td>Address of participant </td>
           <td>Hash of bet </td>
         </tr>
