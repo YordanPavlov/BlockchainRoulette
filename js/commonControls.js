@@ -6,7 +6,7 @@ var numBetsInContract = 0;
 var revealedNumber = 0;
 var finalWinner = 0;
 
-function showAvailableBets(listHashes) {
+function showAvailableBets(listOwners, listHashes) {
   var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
 
 
@@ -16,12 +16,16 @@ function showAvailableBets(listHashes) {
     var newRow   = tableRef.insertRow(tableRef.rows.length);
 
     // Insert a cell in the row at index 0
-    var newCell  = newRow.insertCell(0);
-
+    var newCellOwner  = newRow.insertCell(0);
     // Append a text node to the cell
+    var newTextOwner  = document.createTextNode(listOwners[i].toString());
+    newCellOwner.appendChild(newTextOwner);
 
-    var newText  = document.createTextNode(listHashes[i]);
-    newCell.appendChild(newText);
+    // Insert a cell in the row at index 0
+    var newCellHash  = newRow.insertCell(1);
+    // Append a text node to the cell
+    var newTextHash  = document.createTextNode(listHashes[i]);
+    newCellHash.appendChild(newTextHash);
   }
 }
 
@@ -45,15 +49,15 @@ function checkMetamaskAndStart() {
   }
 );*/
 
-  var lotteryAddress = "0x7fc58f2adf0aaa8662489b3f78c0764b8b94ab74";
+  var lotteryAddress = "0x14acdaa7991159547eea5623fa98febb491ed769";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
   // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
   //lottery.events.allEvents({ fromBlock: 'latest' }, console.log);
 
   web3js.eth.getAccounts(function(error, accounts) {
-    if(!error) {
-        alert("Problem with accessing your Metamask account" + JSON.stringify(result));
+    if(error) {
+        alert("Problem with accessing your Metamask account " + JSON.stringify(accounts));
     } else {
         userAccount = accounts[0];
     }
@@ -64,8 +68,14 @@ function checkMetamaskAndStart() {
      .catch(e => console.log('Wow. Something went wrong'));
 
   lottery.methods.currentRoundTimestamp().call(function (error, result) {
+    if(0 == result) {
+      alert("Problem connecting to contract");
+    } else if(1 == result) {
+      $("#txStatus").text("Contract not yet initialized");
+    } else {
       var date = new Date(1000 * result);
       $("#txTimestamp").text(date.toString());
+    }
     }
   )
 
@@ -88,20 +98,31 @@ console.log("Rows num is" + tableRef.rows.length);
   }
 }
 
+function rePrintStatus() {
+
+}
+
 function rePrintBets() {
 
      var listHashes = [];
+     var listOwners = [];
 
      function getHashFromContract() {
        lottery.methods.listHashes(betsRetrieved).call(function (error, result) {
          listHashes.push(result);
          ++betsRetrieved;
-         if(betsRetrieved < numBetsInContract) {
-           getHashFromContract();
-         } else {
 
-           showAvailableBets(listHashes);
+        // Get the owner of this new hash
+         lottery.methods.getAddressOwner(result).call(function (error, resultOwner) {
+           listOwners.push(resultOwner);
+
+           if(betsRetrieved < numBetsInContract) {
+             getHashFromContract();
+           } else {
+             showAvailableBets(listOwners, listHashes);
+           }
          }
+       )
        })
      }
 
@@ -122,7 +143,10 @@ function rePrintBets() {
           lottery.methods.revealedNumber().call(function (error, result) {
             if(result > 0) {
               revealedNumber = result;
+              $("#txStatus").text("Winning number is revealed. Accepting claims.");
               $("#revealedNumber").text("Chosen number is revealed as " + result);
+            } else {
+              $("#txStatus").text("Accepting bets");
             }
           })
 
@@ -145,7 +169,10 @@ function rePrintBets() {
                      "with difference of " + finalDifference);
                  })
                })
-              }
+               $("#txStatus").text("Game over. Winner is chosen.");
+             } else {
+               $("#txStatus").text("Accepting claims.");
+             }
           })
         }
 
