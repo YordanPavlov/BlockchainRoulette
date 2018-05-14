@@ -123,6 +123,20 @@ var lotteryABI =  [
     {
       "constant": true,
       "inputs": [],
+      "name": "hashWinningNumber",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
       "name": "closestDifference",
       "outputs": [
         {

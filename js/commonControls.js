@@ -9,9 +9,11 @@ var finalWinner = 0;
 function showAvailableBets(listOwners, listHashes) {
   var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
 
-
+console.log("Printing " + listHashes.length + " rows");
 
   for(var i =0; i < listHashes.length; ++i) {
+    console.log(listOwners[i]);
+    console.log(listHashes[i]);
     // Insert a row in the table at the last row
     var newRow   = tableRef.insertRow(tableRef.rows.length);
 
@@ -49,7 +51,7 @@ function checkMetamaskAndStart() {
   }
 );*/
 
-  var lotteryAddress = "0x14acdaa7991159547eea5623fa98febb491ed769";
+  var lotteryAddress = "0xcf3387bf7cd67f8e377cfc269aa1f181e2d756b2";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
   // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
@@ -63,6 +65,17 @@ function checkMetamaskAndStart() {
     }
   });
 
+  /*lottery.events.NewBet({},{ fromBlock: 0, toBlock: 'latest' },
+    function(error, event){ console.log(event); })
+                .on('data', function(event){
+                      console.log(event);
+                })*/
+
+  setTimeout(checkConnectivity, 5000);
+  setInterval(rePrintBets, 10000);
+}
+
+function checkConnectivity() {
   web3js.eth.net.isListening()
      .then(() => console.log('Connected'))
      .catch(e => console.log('Wow. Something went wrong'));
@@ -78,14 +91,6 @@ function checkMetamaskAndStart() {
     }
     }
   )
-
-  /*lottery.events.NewBet({},{ fromBlock: 0, toBlock: 'latest' },
-    function(error, event){ console.log(event); })
-                .on('data', function(event){
-                      console.log(event);
-                })*/
-
-  setInterval(rePrintBets, 10000);
 }
 
 function eraseBetsTable() {
@@ -98,15 +103,12 @@ console.log("Rows num is" + tableRef.rows.length);
   }
 }
 
-function rePrintStatus() {
-
-}
-
 function rePrintBets() {
 
      var listHashes = [];
      var listOwners = [];
 
+     // Recurively iterate all bets
      function getHashFromContract() {
        lottery.methods.listHashes(betsRetrieved).call(function (error, result) {
          listHashes.push(result);
@@ -126,15 +128,27 @@ function rePrintBets() {
        })
      }
 
+     lottery.methods.gamePhase().call(function (error, result) {
+      if(0 == result) {
+        $("#txStatus").text("Accepting bets");
+        lottery.methods.hashWinningNumber().call(function (error, result) {
+            $("#txWinningNumberHash").text(result);
+        })
+      }
+    });
+
+
      lottery.methods.bettingIteration().call(function (error, result) {
        // If the contract has been reset - all has to be reprinted
-       console.log("Betting iteration is " + result);
         if(result > bettingStage) {
+          console.log("Betting iteration increased to: " + result);
           betsRetrieved = 0;
           revealedNumber = 0;
           revealedNumber = 0;
           finalWinner = 0;
           bettingStage = result;
+          var currentWinner = document.getElementById("currentWinner");
+          currentWinner.style.display = "none";
           eraseBetsTable();
         }
 
@@ -145,10 +159,10 @@ function rePrintBets() {
               revealedNumber = result;
               $("#txStatus").text("Winning number is revealed. Accepting claims.");
               $("#revealedNumber").text("Chosen number is revealed as " + result);
-            } else {
-              $("#txStatus").text("Accepting bets");
-            }
-          })
+              var currentWinner = document.getElementById("currentWinner");
+              currentWinner.style.display = "block";
+          }
+        })
 
           // Check for new hashes
           lottery.methods.listHashesCurrentSize().call(function (error, result) {
@@ -156,6 +170,7 @@ function rePrintBets() {
                if(betsRetrieved < numBetsInContract) {
                  getHashFromContract();
                }
+               console.log("Bets retrieved is " + betsRetrieved);
           })
         } else if(0 == finalWinner){
            lottery.methods.gamePhase().call(function (error, result) {

@@ -8,14 +8,15 @@ contract Lottery {
       uint iterationStamp;
   }
 
+  // -1 - not initialized
   // 0 - accepting bets
   // 1 - revealed winning number, bets are not accepted only claims
   // 2 - winner is chosen among claims
-  uint8 public gamePhase = 0;
+  uint8 public gamePhase = -1;
   uint public currentRoundTimestamp = 1;
   // Find out how to use hashBetToOwner.size()
   uint curNumBets = 0;
-  bytes32 hashWinningNumber;
+  bytes32 public hashWinningNumber;
   address public owner;
   uint public revealedNumber = 0;
   uint8 betsClaimed = 0;

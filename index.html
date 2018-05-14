@@ -1,4 +1,4 @@
-c<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -28,6 +28,12 @@ c<!DOCTYPE html>
         <td class="firstCollumn">Game start time:</td>
         <td>
           <div id="txTimestamp"></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="firstCollumn">Hash of winning number:</td>
+        <td>
+          <div id="txWinningNumberHash"></div>
         </td>
       </tr>
       <tr>
@@ -102,13 +108,26 @@ c<!DOCTYPE html>
       </table>
     </div>
 
+    <div id="currentWinner">
+      <div class="title">
+        Current winner
+      </div>
+      <table class="centeredTable">
+          <tr class="tableTitle">
+            <td >Address of participant </td>
+            <td >Chosen number </td>
+            <td >Difference </td>
+          </tr>
+      </table>
+    </div>
+
     <div class="title">
       Received bets
     </div>
     <table class="centeredTable" id="betsTable">
         <tr class="tableTitle">
-          <td>Address of participant </td>
-          <td>Hash of bet </td>
+          <td class="halfWidth">Address of participant </td>
+          <td class="halfWidth">Hash of bet </td>
         </tr>
     </table>
 
