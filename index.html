@@ -31,7 +31,7 @@
         </td>
       </tr>
       <tr>
-        <td class="firstCollumn">Hash of winning number:</td>
+        <td class="firstCollumn">Hash of chosen number:</td>
         <td>
           <div id="txWinningNumberHash"></div>
         </td>
@@ -42,11 +42,27 @@
           <div id="txLastAction"></div>
         </td>
       </tr>
+      <tr>
+        <td class="firstCollumn">Interface refresh time:</td>
+        <td>
+          <div id="txPageRefreshTime"></div>
+        </td>
+      </tr>
+      <div class="winnerRevealed">
+        <tr>
+          <td class="firstCollumn">Chosen number:</td>
+          <td>
+            <div id="revealedNumber"></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="firstCollumn">Chosen winner:</td>
+          <td>
+            <div id="chosenWinner"></div>
+          </td>
+        </tr>
+      </div>
     </table>
-    <div id="revealedNumber"></div>
-    <div id="chosenWinner"></div>
-    <div id="bets"></div>
-
 
     <div id="userControls">
       <div class="title">
@@ -108,15 +124,18 @@
       </table>
     </div>
 
-    <div id="currentWinner">
+    <div class="winnerRevealed">
       <div class="title">
         Current winner
       </div>
       <table class="centeredTable">
           <tr class="tableTitle">
-            <td >Address of participant </td>
-            <td >Chosen number </td>
-            <td >Difference </td>
+            <td class="halfWidth">Address of participant </td>
+            <td class="halfWidth">Difference</td>
+          </tr>
+          <tr>
+            <td id="txCurrentWinner"> <p/> </td>
+            <td id="txCurrentDifference"> <p/> </td>
           </tr>
       </table>
     </div>

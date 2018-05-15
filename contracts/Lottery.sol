@@ -8,11 +8,13 @@ contract Lottery {
       uint iterationStamp;
   }
 
-  // -1 - not initialized
-  // 0 - accepting bets
-  // 1 - revealed winning number, bets are not accepted only claims
-  // 2 - winner is chosen among claims
-  uint8 public gamePhase = -1;
+  enum GamePhase {
+    NOT_INITIALIZED, // 0 - used only when initially deployed
+    ACCEPTING_BETS,  // 1
+    WINNER_REVEALED, // 2 - bets are not accepted only claims
+    WINNER_CHOSEN}   // 3 - winner is chosen among claims
+
+  GamePhase public gamePhase = GamePhase.NOT_INITIALIZED;
   uint public currentRoundTimestamp = 1;
   // Find out how to use hashBetToOwner.size()
   uint curNumBets = 0;
@@ -119,7 +121,7 @@ contract Lottery {
 
   function revealNumber(string _seedPlusNumber) public {
       require(msg.sender == owner);
-      require(0 == gamePhase);
+      require(GamePhase.ACCEPTING_BETS == gamePhase);
       uint _revealedNumber = _str2uint(bytes(_seedPlusNumber));
       require(_revealedNumber > 0 && _revealedNumber <= 1000000);
       // Check if keccak256 can accept bytes32 as argument, if so do the conversion in JS to save gas
@@ -127,11 +129,11 @@ contract Lottery {
       require(hashWinningNumber == _hashWinningNumber);
 
       revealedNumber = _revealedNumber;
-      gamePhase = 1;
+      gamePhase = GamePhase.WINNER_REVEALED;
   }
 
   function acceptBet(bytes32 _hashBet) public payable {
-    require(0 == gamePhase);
+    require(GamePhase.ACCEPTING_BETS == gamePhase);
     require(msg.value == 1 ether);
     require(hashBetToOwner[_hashBet].iterationStamp < bettingIteration);
     hashBetToOwner[_hashBet] = BetSender(msg.sender, bettingIteration);
@@ -147,7 +149,7 @@ contract Lottery {
   }
 
   function claimBet(string _claimSeedPlusNumber) public {
-      require(1 == gamePhase);
+      require(GamePhase.WINNER_REVEALED == gamePhase);
       uint _claimNumber = _str2uint(bytes(_claimSeedPlusNumber));
       require(_claimNumber > 0 && _claimNumber <= 1000000);
       bytes32 hashBet = keccak256(_claimSeedPlusNumber);
@@ -171,15 +173,15 @@ contract Lottery {
 
   function awardWinner() public {
     require(msg.sender == owner);
-    require(1 == gamePhase);
+    require(GamePhase.WINNER_REVEALED == gamePhase);
     //AnnounceWinner(closestDifference, currentWinner);
-    gamePhase = 2;
+    gamePhase = GamePhase.WINNER_CHOSEN;
     currentWinner.transfer(address(this).balance);
   }
 
   function reset(bytes32 _hashWinningNumber) public {
       require(msg.sender == owner);
-      gamePhase = 0;
+      gamePhase = GamePhase.ACCEPTING_BETS;
       curNumBets = 0;
       revealedNumber = 0;
       betsClaimed = 0;

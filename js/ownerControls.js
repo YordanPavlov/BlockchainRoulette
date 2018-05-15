@@ -2,7 +2,7 @@ function reset() {
   var resetHash = document.getElementById('resetInput').value;
   // This is going to take a while, so update the UI to let the user know
   // the transaction has been sent
-  $("#txLastAction").text("Resetting winning hash to " + resetHash + "This may take a while...");
+  $("#txLastAction").text("Resetting winning hash to " + resetHash + ". This may take a while...");
   // Send the tx to our contract:
   console.log(resetHash);
   return lottery.methods.reset(resetHash)
@@ -26,9 +26,9 @@ function revealNumber() {
     $("#txLastAction").text("Winning number is now revealed!");
     // Transaction was accepted into the blockchain, let's redraw the UI
   })
-  .on("error", function(error) {
-    // Do something to alert the user their transaction has failed
-    $("#txLastAction").text(error);
+  .on("error", function(errorResult) {
+    // Print only the first 100 characters as the errors tend to be very long
+    $("#txLastAction").text(errorResult.toString().substring(0, 100));
   });
 }
 
@@ -41,6 +41,6 @@ function awardWinner() {
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
-    $("#txLastAction").text(error);
+    $("#txLastAction").text(error.toString().substring(0, 100));
   });
 }

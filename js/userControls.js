@@ -9,7 +9,7 @@ function claimBet() {
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
-    $("#txStatus").text(error);
+    $("#txLastAction").text(error.toString().substring(0, 100));
   });
 }
 
@@ -32,6 +32,6 @@ function placeBet() {
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
-    $("#txLastAction").text(error);
+    $("#txLastAction").text(error.toString().substring(0, 100));
   });
 }

@@ -15,7 +15,7 @@ html, body {
 }
 
 .firstCollumn {
-	width: 150px;
+	width: 200px;
 }
 
 .wideInput {
@@ -46,7 +46,7 @@ html, body {
 	width: 50%;
 }
 
-#currentWinner {
+.winnerRevealed {
 	display: none;
 }
 

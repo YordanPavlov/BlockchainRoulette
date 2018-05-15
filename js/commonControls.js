@@ -3,17 +3,12 @@ var userAccount;
 var bettingStage = 0;
 var betsRetrieved = 0;
 var numBetsInContract = 0;
-var revealedNumber = 0;
 var finalWinner = 0;
 
 function showAvailableBets(listOwners, listHashes) {
   var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
 
-console.log("Printing " + listHashes.length + " rows");
-
   for(var i =0; i < listHashes.length; ++i) {
-    console.log(listOwners[i]);
-    console.log(listHashes[i]);
     // Insert a row in the table at the last row
     var newRow   = tableRef.insertRow(tableRef.rows.length);
 
@@ -51,7 +46,7 @@ function checkMetamaskAndStart() {
   }
 );*/
 
-  var lotteryAddress = "0xcf3387bf7cd67f8e377cfc269aa1f181e2d756b2";
+  var lotteryAddress = "0xe12e86a3fd8cd212d1492b20aa7abb7169d12a62";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
   // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
@@ -81,16 +76,10 @@ function checkConnectivity() {
      .catch(e => console.log('Wow. Something went wrong'));
 
   lottery.methods.currentRoundTimestamp().call(function (error, result) {
-    if(0 == result) {
-      alert("Problem connecting to contract");
-    } else if(1 == result) {
-      $("#txStatus").text("Contract not yet initialized");
-    } else {
-      var date = new Date(1000 * result);
-      $("#txTimestamp").text(date.toString());
-    }
-    }
-  )
+      if(0 == result) {
+        alert("Problem connecting to contract");
+      }
+    })
 }
 
 function eraseBetsTable() {
@@ -103,6 +92,22 @@ console.log("Rows num is" + tableRef.rows.length);
   }
 }
 
+function checkForContractReset {
+  lottery.methods.bettingIteration().call(function (error, result) {
+    // If the contract has been reset - all has to be reprinted
+     if(result > bettingStage) {
+       console.log("Betting iteration increased to: " + result);
+       betsRetrieved = 0;
+
+
+       bettingStage = result;
+       //var currentWinner = document.getElementById("currentWinner");
+       //currentWinner.style.display = "none";
+       $(".winnerRevealed").css("display", "none");
+       eraseBetsTable();
+     }
+   })
+}
 function rePrintBets() {
 
      var listHashes = [];
@@ -128,68 +133,69 @@ function rePrintBets() {
        })
      }
 
-     lottery.methods.gamePhase().call(function (error, result) {
-      if(0 == result) {
-        $("#txStatus").text("Accepting bets");
-        lottery.methods.hashWinningNumber().call(function (error, result) {
-            $("#txWinningNumberHash").text(result);
-        })
+     checkForContractReset();
+
+     lottery.methods.gamePhase().call(function (error, gamePhaseNow) {
+      // Checking all values from 0 upwards
+      if(0 == gamePhaseNow) {
+       $("#txStatus").text("Contract not yet initialized");
+       return;
       }
+      // result >= 1
+      lottery.methods.currentRoundTimestamp().call(function (error, result) {
+        var date = new Date(1000 * result);
+        $("#txTimestamp").text(date.toString());
+       })
+      lottery.methods.hashWinningNumber().call(function (error, result) {
+        $("#txWinningNumberHash").text(result);
+      })
+      if(!error && 1 == result) {
+      $("#txStatus").text("Accepting bets");
+      // Check for new hashes
+      lottery.methods.listHashesCurrentSize().call(function (error, result) {
+           numBetsInContract = result;
+           if(betsRetrieved < numBetsInContract) {
+             getHashFromContract();
+           }
+           console.log("Bets retrieved is " + betsRetrieved);
+      })
+      return;
+      }
+      // result >=2 )
+      lottery.methods.currentWinner().call(function (error, result) {
+        $("#txCurrentWinner").text(result);
+      })
+      lottery.methods.closestDifference().call(function (error, result) {
+        $("#txCurrentDifference").text(result);
+      })
+      if(2 == gamePhaseNow && gamePhaseNow != gamePhaseBefore) {
+        lottery.methods.revealedNumber().call(function (error, result) {
+          if(result > 0) {
+            $("#txStatus").text("Winning number is revealed. Accepting claims.");
+            $("#revealedNumber").text(result);
+            $(".winnerRevealed").css("display", "block");
+            //var currentWinner = document.getElementById("currentWinner");
+            //currentWinner.style.display = "block";
+        }})
+        gamePhaseBefore = gamePhaseNow;
+        return;
+      }
+      if(3 == result &&  gamePhaseNow != gamePhaseBefore) {
+        lottery.methods.currentWinner().call(function (error, result) {
+          lottery.methods.closestDifference().call(function (error, result) {
+            var finalDifference = result;
+
+            $("#chosenWinner").text(result +
+            " with difference of " + finalDifference);
+        })
+        })
+        $("#txStatus").text("Game over. Winner is chosen.");
+      }
+      gamePhaseBefore = gamePhaseNow;
     });
 
 
-     lottery.methods.bettingIteration().call(function (error, result) {
-       // If the contract has been reset - all has to be reprinted
-        if(result > bettingStage) {
-          console.log("Betting iteration increased to: " + result);
-          betsRetrieved = 0;
-          revealedNumber = 0;
-          revealedNumber = 0;
-          finalWinner = 0;
-          bettingStage = result;
-          var currentWinner = document.getElementById("currentWinner");
-          currentWinner.style.display = "none";
-          eraseBetsTable();
-        }
+    var dateNow = new Date(Date.now());
+    $("#txPageRefreshTime").text(dateNow.toString());
 
-        // If we are still accepting new bets - check for such
-        if(0 == revealedNumber) {
-          lottery.methods.revealedNumber().call(function (error, result) {
-            if(result > 0) {
-              revealedNumber = result;
-              $("#txStatus").text("Winning number is revealed. Accepting claims.");
-              $("#revealedNumber").text("Chosen number is revealed as " + result);
-              var currentWinner = document.getElementById("currentWinner");
-              currentWinner.style.display = "block";
-          }
-        })
-
-          // Check for new hashes
-          lottery.methods.listHashesCurrentSize().call(function (error, result) {
-               numBetsInContract = result;
-               if(betsRetrieved < numBetsInContract) {
-                 getHashFromContract();
-               }
-               console.log("Bets retrieved is " + betsRetrieved);
-          })
-        } else if(0 == finalWinner){
-           lottery.methods.gamePhase().call(function (error, result) {
-               if(2 == result) {
-                 lottery.methods.currentWinner().call(function (error, result) {
-                   finalWinner = result;
-                   lottery.methods.closestDifference().call(function (error, result) {
-                     var finalDifference = result;
-
-                     $("#chosenWinner").text("Chosen winner is: " + finalWinner +
-                     "with difference of " + finalDifference);
-                 })
-               })
-               $("#txStatus").text("Game over. Winner is chosen.");
-             } else {
-               $("#txStatus").text("Accepting claims.");
-             }
-          })
-        }
-
-   })
 }
