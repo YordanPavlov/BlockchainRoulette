@@ -3,7 +3,7 @@ var userAccount;
 var bettingStage = 0;
 var betsRetrieved = 0;
 var numBetsInContract = 0;
-var finalWinner = 0;
+var gamePhaseBefore = -1;
 
 function showAvailableBets(listOwners, listHashes) {
   var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
@@ -37,16 +37,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-/*  web3js.eth.isListening()
-  .then(function(result) {
-    if(!result) {
-      alert("Not connected to Ethereum network. Check Metamask settings.");
-      return;
-    }
-  }
-);*/
-
-  var lotteryAddress = "0xe12e86a3fd8cd212d1492b20aa7abb7169d12a62";
+  var lotteryAddress = "0x43fe4dd63bdde0a6c6317f71946560b5b2ba98b6";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
   // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
@@ -67,7 +58,7 @@ function checkMetamaskAndStart() {
                 })*/
 
   setTimeout(checkConnectivity, 5000);
-  setInterval(rePrintBets, 10000);
+  setInterval(rePrintChanges, 10000);
 }
 
 function checkConnectivity() {
@@ -92,7 +83,7 @@ console.log("Rows num is" + tableRef.rows.length);
   }
 }
 
-function checkForContractReset {
+function checkForContractReset() {
   lottery.methods.bettingIteration().call(function (error, result) {
     // If the contract has been reset - all has to be reprinted
      if(result > bettingStage) {
@@ -108,7 +99,8 @@ function checkForContractReset {
      }
    })
 }
-function rePrintBets() {
+
+function rePrintChanges() {
 
      var listHashes = [];
      var listOwners = [];
@@ -149,8 +141,6 @@ function rePrintBets() {
       lottery.methods.hashWinningNumber().call(function (error, result) {
         $("#txWinningNumberHash").text(result);
       })
-      if(!error && 1 == result) {
-      $("#txStatus").text("Accepting bets");
       // Check for new hashes
       lottery.methods.listHashesCurrentSize().call(function (error, result) {
            numBetsInContract = result;
@@ -159,7 +149,9 @@ function rePrintBets() {
            }
            console.log("Bets retrieved is " + betsRetrieved);
       })
-      return;
+      if(!error && 1 == gamePhaseNow) {
+        $("#txStatus").text("Accepting bets");
+        return;
       }
       // result >=2 )
       lottery.methods.currentWinner().call(function (error, result) {
@@ -180,15 +172,8 @@ function rePrintBets() {
         gamePhaseBefore = gamePhaseNow;
         return;
       }
-      if(3 == result &&  gamePhaseNow != gamePhaseBefore) {
-        lottery.methods.currentWinner().call(function (error, result) {
-          lottery.methods.closestDifference().call(function (error, result) {
-            var finalDifference = result;
-
-            $("#chosenWinner").text(result +
-            " with difference of " + finalDifference);
-        })
-        })
+      if(3 == gamePhaseNow &&  gamePhaseNow != gamePhaseBefore) {
+        $("#winnerTitle").text("Final winner");
         $("#txStatus").text("Game over. Winner is chosen.");
       }
       gamePhaseBefore = gamePhaseNow;

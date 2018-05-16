@@ -1,11 +1,15 @@
 function reset() {
   var resetHash = document.getElementById('resetInput').value;
+  resetHash = validateHash(resetHash);
+  if(false == resetHash) {
+    return;
+  }
   // This is going to take a while, so update the UI to let the user know
   // the transaction has been sent
   $("#txLastAction").text("Resetting winning hash to " + resetHash + ". This may take a while...");
   // Send the tx to our contract:
   console.log(resetHash);
-  return lottery.methods.reset(resetHash)
+  lottery.methods.reset(resetHash)
   .send({ from: userAccount })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Successfully reset contract with new hash " + resetHash + "!");
@@ -20,6 +24,9 @@ function reset() {
 
 function revealNumber() {
   var revealedNumberHash = document.getElementById('revealWinning').value;
+  if(!validateOriginalMessage(revealedNumberHash)) {
+    return;
+  }
   return lottery.methods.revealNumber(revealedNumberHash)
   .send({ from: userAccount })
   .on("receipt", function(receipt) {
@@ -29,11 +36,12 @@ function revealNumber() {
   .on("error", function(errorResult) {
     // Print only the first 100 characters as the errors tend to be very long
     $("#txLastAction").text(errorResult.toString().substring(0, 100));
+    console.log(errorResult);
   });
 }
 
 function awardWinner() {
-  return lottery.methods.awardWinner()
+  lottery.methods.awardWinner()
   .send({ from: userAccount })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Winner is rewarded.");

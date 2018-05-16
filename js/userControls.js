@@ -1,6 +1,8 @@
 function claimBet() {
   var claimBet = document.getElementById('claimBet').value;
-
+  if(!validateOriginalMessage(claimBet)) {
+    return;
+  }
   return lottery.methods.claimBet(claimBet)
   .send({ from: userAccount })
   .on("receipt", function(receipt) {
