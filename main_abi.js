@@ -1,4 +1,4 @@
-var lotteryABI =  [
+var lotteryABI = [
     {
       "constant": true,
       "inputs": [
@@ -67,6 +67,20 @@ var lotteryABI =  [
     {
       "constant": true,
       "inputs": [],
+      "name": "currentWinnersCurrentSize",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
       "name": "listHashesCurrentSize",
       "outputs": [
         {
@@ -94,12 +108,17 @@ var lotteryABI =  [
     },
     {
       "constant": true,
-      "inputs": [],
-      "name": "currentRoundTimestamp",
-      "outputs": [
+      "inputs": [
         {
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "name": "currentWinners",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -109,11 +128,11 @@ var lotteryABI =  [
     {
       "constant": true,
       "inputs": [],
-      "name": "currentWinner",
+      "name": "currentRoundTimestamp",
       "outputs": [
         {
           "name": "",
-          "type": "address"
+          "type": "uint256"
         }
       ],
       "payable": false,

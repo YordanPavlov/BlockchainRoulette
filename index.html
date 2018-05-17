@@ -44,13 +44,19 @@
         </td>
       </tr>
       <tr>
-        <td class="firstCollumn">Interface refresh time:</td>
+        <td class="firstCollumn">Time until betting end:</td>
         <td>
-          <div id="txPageRefreshTime"></div>
+          <div id="txTimeoutBetting"></div>
         </td>
       </tr>
       <tr class="winnerRevealed">
         <td class="firstCollumn">Chosen number:</td>
+        <td>
+          <div id="revealedNumber"></div>
+        </td>
+      </tr>
+      <tr class="winnerRevealed">
+        <td class="firstCollumn">Time until end of claims:</td>
         <td>
           <div id="revealedNumber"></div>
         </td>
@@ -89,7 +95,9 @@
       <table>
           <tr>
             <td class="firstCollumn">Restart contract</td>
-            <td> <input class="wideInput" type="text" name="resetInput" id="resetInput"><br> </td>
+            <td> <input type="text" name="resetInputHash" id="resetInput"><br> </td>
+            <td> <input type="text" name="resetInputTimeoutBetting" id="resetInputTimeoutBetting"><br> </td>
+            <td> <input type="text" name="resetInputTimeoutClaiming" id="resetInputTimeoutClaiming"><br> </td>
             <td> <button class="button" onclick="reset()">Restart</button> </td>
             <td>  <div class="help-tip">
                     <p>To be executed by the contract owner only. Start a new round of the game by choosing a new secret number. Generate your has as described below. </p>

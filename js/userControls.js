@@ -11,13 +11,17 @@ function claimBet() {
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
-    $("#txLastAction").text(error.toString().substring(0, 100));
+    $("#txLastAction").text(error.toString().substring(0, 200));
   });
 }
 
 
 function placeBet() {
   var hashBet = document.getElementById('placeBetInput').value;
+  hashBet = validateHash(hashBet);
+  if(false == hashBet) {
+    return;
+  }
   // This is going to take a while, so update the UI to let the user know
   // the transaction has been sent
   $("#txLastAction").text("Placing bet on the blockchain. This may take a while...");
@@ -34,6 +38,6 @@ function placeBet() {
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
-    $("#txLastAction").text(error.toString().substring(0, 100));
+    $("#txLastAction").text(error.toString().substring(0, 200));
   });
 }

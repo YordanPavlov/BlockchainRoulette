@@ -15,7 +15,9 @@ contract Lottery {
     WINNER_CHOSEN}   // 3 - winner is chosen among claims
 
   GamePhase public gamePhase = GamePhase.NOT_INITIALIZED;
-  uint public currentRoundTimestamp = 1;
+  uint public currentRoundStart = 1;
+  uint public currentRoundBettingEnd = 1;
+  uint public currentRoundClaimingEnd = 1;
   // Find out how to use hashBetToOwner.size()
   uint curNumBets = 0;
   bytes32 public hashWinningNumber;
@@ -23,10 +25,11 @@ contract Lottery {
   uint public revealedNumber = 0;
   uint8 betsClaimed = 0;
   int public closestDifference = 1000000;
-  address public currentWinner;
+  address[] public currentWinners;
+  uint public currentWinnersCurrentSize = 0;
   // as we are not going to clear bets to spare gas we need to keep track if
   // each bet has been made in this iteration
-  uint public bettingIteration;
+  uint public bettingIteration = 1;
   uint constant maxUintValue = 2**256 - 1;
 
   mapping (bytes32 => BetSender) public hashBetToOwner;
@@ -36,8 +39,6 @@ contract Lottery {
 
   function Lottery() public {
     owner = msg.sender;
-    currentWinner = owner;
-    bettingIteration = 1;
   }
 
   //function getListHashesCurrentSize() view returns (uint) {
@@ -109,6 +110,7 @@ contract Lottery {
         }
 
         result += number * multiplier;
+        multiplier*=10;
         --index;
     }
 
@@ -136,6 +138,7 @@ contract Lottery {
     require(GamePhase.ACCEPTING_BETS == gamePhase);
     require(msg.value == 1 ether);
     require(hashBetToOwner[_hashBet].iterationStamp < bettingIteration);
+    require(currentRoundBettingEnd > block.timestamp);
     hashBetToOwner[_hashBet] = BetSender(msg.sender, bettingIteration);
     if(listHashesCurrentSize < listHashes.length) {
       // The array has already been expanded before
@@ -150,6 +153,7 @@ contract Lottery {
 
   function claimBet(string _claimSeedPlusNumber) public {
       require(GamePhase.WINNER_REVEALED == gamePhase);
+      require(currentRoundClaimingEnd > block.timestamp);
       uint _claimNumber = _str2uint(bytes(_claimSeedPlusNumber));
       require(_claimNumber > 0 && _claimNumber <= 1000000);
       bytes32 hashBet = keccak256(_claimSeedPlusNumber);
@@ -165,10 +169,23 @@ contract Lottery {
         difference *= -1;
       }
 
-      if(difference < closestDifference) {
-          closestDifference = difference;
-          currentWinner = msg.sender;
+      if(difference > closestDifference) {
+        // Nothing to do, not close enough
+        return;
       }
+      if(difference < closestDifference) {
+          // Better than all the previous, delete the previous
+          closestDifference = difference;
+          currentWinnersCurrentSize = 0;
+          msg.sender;
+      }
+      // Either as good or better, we are adding this as winner
+      if(currentWinnersCurrentSize < currentWinners.length) {
+        currentWinners[currentWinnersCurrentSize] = msg.sender;
+      } else {
+        currentWinners.push(msg.sender);
+      }
+      ++currentWinnersCurrentSize;
   }
 
   function awardWinner() public {
@@ -176,18 +193,33 @@ contract Lottery {
     require(GamePhase.WINNER_REVEALED == gamePhase);
     //AnnounceWinner(closestDifference, currentWinner);
     gamePhase = GamePhase.WINNER_CHOSEN;
-    currentWinner.transfer(address(this).balance);
+    for(uint i=0; i<currentWinnersCurrentSize; ++i) {
+        currentWinners[i].transfer(address(this).balance/currentWinnersCurrentSize);
+    }
   }
 
-  function reset(bytes32 _hashWinningNumber) public {
+  function reset(bytes32 _hashWinningNumber,
+                  uint timestampEndBetting,
+                  uint timestampEndClaiming) public {
       require(msg.sender == owner);
+      currentRoundStart = block.timestamp;
+      require(timestampEndBetting > currentRoundStart);
+      require(timestampEndClaiming > timestampEndBetting)
+      currentRoundBettingEnd = timestampEndBetting;
+      currentRoundClaimingEnd = timestampEndClaiming;
+
       gamePhase = GamePhase.ACCEPTING_BETS;
       curNumBets = 0;
       revealedNumber = 0;
       betsClaimed = 0;
       closestDifference = 1000000;
       hashWinningNumber = _hashWinningNumber;
-      currentWinner = owner;
+      if(currentWinnersCurrentSize > 0){
+        currentWinners[0] = owner;
+      } else {
+        currentWinners.push(owner);
+      }
+      currentWinnersCurrentSize = 1;
       // Handle the betting iteration overflow
       if(maxUintValue == bettingIteration) {
         bettingIteration = 1;
@@ -195,7 +227,7 @@ contract Lottery {
         ++bettingIteration;
       }
       listHashesCurrentSize = 0;
-      currentRoundTimestamp = block.timestamp;
+
   }
 
 

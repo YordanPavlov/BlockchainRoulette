@@ -4,6 +4,10 @@ var bettingStage = 0;
 var betsRetrieved = 0;
 var numBetsInContract = 0;
 var gamePhaseBefore = -1;
+var winnersRetrieved = 0;
+var currentWinners = "";
+var timestampEndBetting = 0;
+var timestampEndClaiming = 0;
 
 function showAvailableBets(listOwners, listHashes) {
   var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
@@ -37,7 +41,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0x43fe4dd63bdde0a6c6317f71946560b5b2ba98b6";
+  var lotteryAddress = "0xc12989c79770f717d06b2e013a748a91c71bf9df";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
   // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
@@ -89,15 +93,54 @@ function checkForContractReset() {
      if(result > bettingStage) {
        console.log("Betting iteration increased to: " + result);
        betsRetrieved = 0;
-
-
+       winnersRetrieved = 0;
+       currentWinners = "";
+       gamePhaseBefore = -1;
        bettingStage = result;
        //var currentWinner = document.getElementById("currentWinner");
        //currentWinner.style.display = "none";
        $(".winnerRevealed").css("display", "none");
        eraseBetsTable();
+
+       lottery.methods.currentRoundBettingEnd().call(function (error, result) {
+         timestampEndBetting = result;
+       });
+       lottery.methods.currentRoundClaimingEnd().call(function (error, result) {
+         timestampEndClaiming = result;
+       });
      }
    })
+}
+
+function getNewWinners(winnersInContract) {
+  lottery.methods.currentWinners(winnersRetrieved).call(function (error, winnerAtIndex) {
+    console.log("Winner at index is " + winnerAtIndex);
+      if(currentWinners.length > 0) {
+        currentWinners += ", ";
+      }
+      currentWinners += winnerAtIndex;
+
+      ++winnersRetrieved;
+      if(winnersRetrieved < winnersInContract) {
+        getNewWinners(winnersInContract);
+      } else {
+        $("#txCurrentWinner").text(currentWinners);
+      }
+  })
+}
+
+function printCurrentWinners() {
+  lottery.methods.currentWinnersCurrentSize().call(function (error, winnersInContract) {
+    if(winnersInContract > winnersRetrieved) {
+      console.log("Winners in contract are " + winnersInContract);
+      console.log("Winners retrieved are " + winnersRetrieved);
+        getNewWinners(winnersInContract);
+    }
+  })
+
+  lottery.methods.closestDifference().call(function (error, result) {
+    $("#txCurrentDifference").text(result);
+  })
 }
 
 function rePrintChanges() {
@@ -154,23 +197,18 @@ function rePrintChanges() {
         return;
       }
       // result >=2 )
-      lottery.methods.currentWinner().call(function (error, result) {
-        $("#txCurrentWinner").text(result);
-      })
-      lottery.methods.closestDifference().call(function (error, result) {
-        $("#txCurrentDifference").text(result);
-      })
-      if(2 == gamePhaseNow && gamePhaseNow != gamePhaseBefore) {
+      printCurrentWinners();
+      if(gamePhaseNow != gamePhaseBefore) {
         lottery.methods.revealedNumber().call(function (error, result) {
           if(result > 0) {
-            $("#txStatus").text("Winning number is revealed. Accepting claims.");
+            if(2 == gamePhaseNow) {
+              $("#txStatus").text("Winning number is revealed. Accepting claims.");
+            }
             $("#revealedNumber").text(result);
-            $(".winnerRevealed").css("display", "block");
+            $(".winnerRevealed").show();
             //var currentWinner = document.getElementById("currentWinner");
             //currentWinner.style.display = "block";
         }})
-        gamePhaseBefore = gamePhaseNow;
-        return;
       }
       if(3 == gamePhaseNow &&  gamePhaseNow != gamePhaseBefore) {
         $("#winnerTitle").text("Final winner");
@@ -180,7 +218,7 @@ function rePrintChanges() {
     });
 
 
-    var dateNow = new Date(Date.now());
-    $("#txPageRefreshTime").text(dateNow.toString());
+    var secondsEpochNow = Date.now() / 1000;
+    $("#txTimeoutBetting").text(timestampEndBetting - secondsEpochNow);
 
 }
