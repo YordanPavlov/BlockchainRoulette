@@ -41,7 +41,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0xc12989c79770f717d06b2e013a748a91c71bf9df";
+  var lotteryAddress = "0x0d95e0a2dfcff1909999cc8a1905c9c1bba7372b";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
   // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
@@ -70,7 +70,7 @@ function checkConnectivity() {
      .then(() => console.log('Connected'))
      .catch(e => console.log('Wow. Something went wrong'));
 
-  lottery.methods.currentRoundTimestamp().call(function (error, result) {
+  lottery.methods.currentRoundStart().call(function (error, result) {
       if(0 == result) {
         alert("Problem connecting to contract");
       }
@@ -99,7 +99,8 @@ function checkForContractReset() {
        bettingStage = result;
        //var currentWinner = document.getElementById("currentWinner");
        //currentWinner.style.display = "none";
-       $(".winnerRevealed").css("display", "none");
+       $(".winnerRevealed").hide();
+       $(".acceptingBets").hide();
        eraseBetsTable();
 
        lottery.methods.currentRoundBettingEnd().call(function (error, result) {
@@ -177,7 +178,7 @@ function rePrintChanges() {
        return;
       }
       // result >= 1
-      lottery.methods.currentRoundTimestamp().call(function (error, result) {
+      lottery.methods.currentRoundStart().call(function (error, result) {
         var date = new Date(1000 * result);
         $("#txTimestamp").text(date.toString());
        })
@@ -194,6 +195,7 @@ function rePrintChanges() {
       })
       if(!error && 1 == gamePhaseNow) {
         $("#txStatus").text("Accepting bets");
+        $(".acceptingBets").show();
         return;
       }
       // result >=2 )

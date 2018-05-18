@@ -131,6 +131,7 @@ contract Lottery {
       require(hashWinningNumber == _hashWinningNumber);
 
       revealedNumber = _revealedNumber;
+      currentRoundClaimingEnd += block.timestamp;
       gamePhase = GamePhase.WINNER_REVEALED;
   }
 
@@ -199,14 +200,15 @@ contract Lottery {
   }
 
   function reset(bytes32 _hashWinningNumber,
-                  uint timestampEndBetting,
-                  uint timestampEndClaiming) public {
+                  uint timeEndBetting,
+                  uint timeEndClaiming) public {
       require(msg.sender == owner);
       currentRoundStart = block.timestamp;
-      require(timestampEndBetting > currentRoundStart);
-      require(timestampEndClaiming > timestampEndBetting)
-      currentRoundBettingEnd = timestampEndBetting;
-      currentRoundClaimingEnd = timestampEndClaiming;
+      require(timeEndBetting > 0);
+      require(timeEndClaiming > 0);
+      currentRoundBettingEnd = currentRoundStart + timeEndBetting;
+      // To be incremented with block.timestamp at the start of claiming
+      currentRoundClaimingEnd = timeEndClaiming;
 
       gamePhase = GamePhase.ACCEPTING_BETS;
       curNumBets = 0;

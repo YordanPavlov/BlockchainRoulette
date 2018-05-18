@@ -1,6 +1,20 @@
 var lotteryABI = [
     {
       "constant": true,
+      "inputs": [],
+      "name": "currentRoundStart",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
       "inputs": [
         {
           "name": "",
@@ -128,7 +142,7 @@ var lotteryABI = [
     {
       "constant": true,
       "inputs": [],
-      "name": "currentRoundTimestamp",
+      "name": "currentRoundClaimingEnd",
       "outputs": [
         {
           "name": "",
@@ -161,6 +175,20 @@ var lotteryABI = [
         {
           "name": "",
           "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "currentRoundBettingEnd",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -302,6 +330,14 @@ var lotteryABI = [
         {
           "name": "_hashWinningNumber",
           "type": "bytes32"
+        },
+        {
+          "name": "timeEndBetting",
+          "type": "uint256"
+        },
+        {
+          "name": "timeEndClaiming",
+          "type": "uint256"
         }
       ],
       "name": "reset",
