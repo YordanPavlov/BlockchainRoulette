@@ -46,7 +46,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0x078ac4eca7df57a7fff10ae16e5b3de050942fd5";
+  var lotteryAddress = "0xe0f121de30b038380a7176a25e961351e468f377";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
   // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
