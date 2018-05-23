@@ -55,74 +55,59 @@
           <div id="revealedNumber"></div>
         </td>
       </tr>
-      <tr class="winnerRevealed">
-        <td class="firstCollumn">Time until end of claims:</td>
-        <td>
-          <div id="revealedNumber"></div>
-        </td>
-      </tr>
     </table>
 
     <div id="userControls">
       <div class="title">
         User controls
       </div>
-      <table>
-        <tr>
-          <td class="firstCollumn">Place bet with hash</td>
-          <td> <input class="wideInput" type="text" name="placeBetInput" id="placeBetInput"><br> </td>
-          <td> <button class="button" onclick="placeBet()">Place bet</button> </td>
-          <td>  <div class="help-tip">
-                  <p>A bet is worth 1 ether. Contract status should be "Accepting bets". Generate your hash as described below.</p>
-                </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="firstCollumn">Claim bet</td>
-          <td> <input class="wideInput" type="text" name="claimBet" id="claimBet"><br> </td>
-          <td> <button class="button" onclick="claimBet()">Claim bet</button> </td>
-          <td>  <div class="help-tip">
-                  <p>Claim your bet by specifying the original seed.number combination you hashed. Contract status should be "Accepting claims". </p>
-                </div>
-          </td>
-        </tr>
-      </table>
+      <div class="container">
+          <div class="firstCollumn">Place bet with hash</div>
+          <input class="wideInput" type="text" title="Hash of seed and chosen number" name="placeBetInput" id="placeBetInput">
+          <button class="button" onclick="placeBet()">Place bet</button>
+          <div class="help-tip">
+            <p>A bet is worth 1 ether. Contract status should be "Accepting bets". Generate your hash as described below.</p>
+          </div>
+      </div>
+      <div class="container">
+          <div class="firstCollumn">Claim bet</div>
+          <input class="wideInput" type="text" name="claimBet" id="claimBet">
+          <button class="button" onclick="claimBet()">Claim bet</button>
+          <div class="help-tip">
+            <p>Claim your bet by specifying the original seed.number combination you hashed. Contract status should be "Accepting claims". </p>
+          </div>
+      </div>
     </div>
     <div id="adminControls">
       <div class="title">
         Admin controls
       </div>
-      <table>
-          <tr>
-            <td class="firstCollumn">Restart contract</td>
-            <td> <input type="text" name="inputHash" id="inputHash"><br> </td>
-            <td> <input type="text" name="inputTimeoutBetting" id="inputTimeoutBetting"><br> </td>
-            <td> <input type="text" name="inputTimeoutClaiming" id="inputTimeoutClaiming"><br> </td>
-            <td> <button class="button" onclick="reset()">Restart</button> </td>
-            <td>  <div class="help-tip">
-                    <p>To be executed by the contract owner only. Start a new round of the game by choosing a new secret number. Generate your has as described below. </p>
-                  </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="firstCollumn">Reveal winning number</td>
-            <td> <input class="wideInput" type="text" name="revealWinning" id="revealWinning"><br> </td>
-            <td> <button class="button" onclick="revealNumber()">Reveal</button> </td>
-            <td>  <div class="help-tip">
-                    <p>To be executed by the contract owner only. Reveal the secret number by specifying the original seed.number combination you hashed. </p>
-                  </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="firstCollumn">Award winner</td>
-            <td></td>
-            <td> <button class="button" onclick="awardWinner()">Award winner</button> </td>
-            <td>  <div class="help-tip">
-                    <p>To be executed by the contract owner only. Stop accepting claims and reward the owner of the bet which is closest to the secret number. </p>
-                  </div>
-            </td>
-          </tr>
-      </table>
+      <div class="container">
+            <div class="firstCollumn">Restart contract</div>
+            <input class="wideInput" type="text" title="Hash of seed and winning number" name="inputHash" id="inputHash">
+            <input type="text" name="inputTimeoutBetting" title="Betting time in minutes" id="inputTimeoutBetting">
+            <button class="button" onclick="reset()">Restart</button>
+              <div class="help-tip">
+                <p>To be executed by the contract owner only. Start a new round of the game by choosing a new secret number. Generate your has as described below. </p>
+              </div>
+      </div>
+      <div class="container">
+            <div class="firstCollumn">Reveal winning number</div>
+            <input class="wideInput" type="text" name="revealWinning" id="revealWinning">
+            <button class="button" onclick="revealNumber()">Reveal</button>
+              <div class="help-tip">
+                <p>To be executed by the contract owner only. Reveal the secret number by specifying the original seed.number combination you hashed. </p>
+              </div>
+            </div>
+      </div>
+      <div class="container">
+            <div class="firstCollumn">Award winner</div>
+
+            <button class="button" onclick="awardWinner()">Award winner</button>
+            <div class="help-tip">
+              <p>To be executed by the contract owner only. Stop accepting claims and reward the owner of the bet which is closest to the secret number. </p>
+            </div>
+      </div>
     </div>
 
     <div class="winnerRevealed">

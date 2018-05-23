@@ -14,18 +14,27 @@ html, body {
     width: 100%;
 }
 
+.container {
+  flex-direction: row;
+	flex-wrap: nowrap;
+	padding-bottom: 10px;
+}
+
 .firstCollumn {
 	width: 200px;
+	display: inline-block;
 }
 
 .wideInput {
 	width: 400px;
 	margin: auto 10px;
+	display: inline-block;
 }
 
 .button {
 	width: 100px;
 	margin: auto 10px;
+	display: inline-block;
 }
 
 .centeredTable {
@@ -67,6 +76,7 @@ html, body {
     font-size: 14px;
     line-height: 26px;
     cursor: default;
+		display: inline-block;
 }
 
 .help-tip:hover {

@@ -17,7 +17,6 @@ contract Lottery {
   GamePhase public gamePhase = GamePhase.NOT_INITIALIZED;
   uint public currentRoundStart = 1;
   uint public currentRoundBettingEnd = 1;
-  uint public currentRoundClaimingEnd = 1;
   // Find out how to use hashBetToOwner.size()
   uint curNumBets = 0;
   bytes32 public hashWinningNumber;
@@ -131,7 +130,6 @@ contract Lottery {
       require(hashWinningNumber == _hashWinningNumber);
 
       revealedNumber = _revealedNumber;
-      currentRoundClaimingEnd += block.timestamp;
       gamePhase = GamePhase.WINNER_REVEALED;
   }
 
@@ -154,7 +152,6 @@ contract Lottery {
 
   function claimBet(string _claimSeedPlusNumber) public {
       require(GamePhase.WINNER_REVEALED == gamePhase);
-      require(currentRoundClaimingEnd > block.timestamp);
       uint _claimNumber = _str2uint(bytes(_claimSeedPlusNumber));
       require(_claimNumber > 0 && _claimNumber <= 1000000);
       bytes32 hashBet = keccak256(_claimSeedPlusNumber);
@@ -200,15 +197,12 @@ contract Lottery {
   }
 
   function reset(bytes32 _hashWinningNumber,
-                  uint timeEndBetting,
-                  uint timeEndClaiming) public {
+                  uint timeEndBetting) public {
       require(msg.sender == owner);
       currentRoundStart = block.timestamp;
       require(timeEndBetting > 0);
-      require(timeEndClaiming > 0);
       currentRoundBettingEnd = currentRoundStart + timeEndBetting;
       // To be incremented with block.timestamp at the start of claiming
-      currentRoundClaimingEnd = timeEndClaiming;
 
       gamePhase = GamePhase.ACCEPTING_BETS;
       curNumBets = 0;

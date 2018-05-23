@@ -5,17 +5,15 @@ function reset() {
     return;
   }
   var timeoutBettingMins = document.getElementById('inputTimeoutBetting').value;
-  var timeoutClaimingMins = document.getElementById('inputTimeoutClaiming').value;
 
   // This is going to take a while, so update the UI to let the user know
   // the transaction has been sent
   $("#txLastAction").text("Resetting winning hash to " + resetHash + ". This may take a while...");
   // Send the tx to our contract:
   console.log(resetHash);
-  
+
   lottery.methods.reset(resetHash,
-                        60 * timeoutBettingMins,
-                        60 * timeoutClaimingMins)
+                        60 * timeoutBettingMins)
   .send({ from: userAccount })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Successfully reset contract with new hash " + resetHash + "!");

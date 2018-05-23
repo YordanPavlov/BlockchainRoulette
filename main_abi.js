@@ -1,4 +1,4 @@
-var lotteryABI = [
+var lotteryABI =  [
     {
       "constant": true,
       "inputs": [],
@@ -133,20 +133,6 @@ var lotteryABI = [
         {
           "name": "",
           "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "currentRoundClaimingEnd",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
         }
       ],
       "payable": false,
@@ -333,10 +319,6 @@ var lotteryABI = [
         },
         {
           "name": "timeEndBetting",
-          "type": "uint256"
-        },
-        {
-          "name": "timeEndClaiming",
           "type": "uint256"
         }
       ],
