@@ -17,6 +17,8 @@ contract Lottery {
   address owner;
   mapping (address => BetsUser) betsPerUser;
   mapping (address => uint) depositPerUser;
+  uint8 constant NUM_BETTING_POSITIONS = 49;
+  uint16 constant MAX_BET_FINNEY = 999;
 
   // We are not going to clear the list of hashes so we need the 'real' size
   //uint public listHashesCurrentSize = 0;
@@ -25,24 +27,29 @@ contract Lottery {
     owner = msg.sender;
   }
 
-  function placeBet(uint8 position) public payable {
+  function placeBets(uint8[] positions, uint16[] values) public payable {
       require(0 == betsPerUser[msg.sender].placementTime);
-      require(position <= 49);
-      require(msg.value <= 1 ether);
-      Bet memory newBet = Bet(position, msg.value);
-      //newBet.position = position;
-      //newBet.value = msg.value;
-      if(betsPerUser[msg.sender].bets.length > betsPerUser[msg.sender].betsLength) {
-        // The array has been extended enough before.
-          betsPerUser[msg.sender].bets[betsPerUser[msg.sender].betsLength] = newBet;
-      } else {
-        betsPerUser[msg.sender].bets.push(newBet);
-      }
-      ++betsPerUser[msg.sender].betsLength;
-  }
+      require(positions.length == values.length);
+      require(positions.length <= NUM_BETTING_POSITIONS);
 
-  function finalizeBets() public {
-      require(0 == betsPerUser[msg.sender].placementTime);
+      uint16 sumValues = 0;
+      for(uint8 index = 0; index < values.length; ++index) {
+        require(positions[index] <= NUM_BETTING_POSITIONS);
+        require(values[index] <= MAX_BET_FINNEY);
+        sumValues += values[index];
+        Bet memory newBet = Bet(positions[index], values[index]);
+        //newBet.position = position;
+        //newBet.value = msg.value;
+        if(betsPerUser[msg.sender].bets.length > betsPerUser[msg.sender].betsLength) {
+          // The array has been extended enough before.
+            betsPerUser[msg.sender].bets[betsPerUser[msg.sender].betsLength] = newBet;
+        } else {
+          betsPerUser[msg.sender].bets.push(newBet);
+        }
+        ++betsPerUser[msg.sender].betsLength;
+      }
+      // Make sure that the sum of the bets equals what has been paid to the method
+      require(msg.value == sumValues);
       betsPerUser[msg.sender].placementTime = block.number;
   }
 

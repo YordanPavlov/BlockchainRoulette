@@ -14,10 +14,49 @@ html, body {
     width: 100%;
 }
 
-.container {
+.rouletteContainer {
+	display: flex;
   flex-direction: row;
 	flex-wrap: nowrap;
 	padding-bottom: 10px;
+	background-color: green;
+	color: white;
+}
+
+.rouletteVertical {
+	display: flex;
+  flex-direction: column;
+	flex-wrap: nowrap;
+	padding-bottom: 10px;
+}
+
+.rouletteNumber
+{
+   width:50px;
+   max-width:50px;
+	 height:50px;
+	 max-height: 50px;
+   display: inline-block;
+}
+
+.rouletteBetInput
+{
+   width:50px;
+   max-width:50px;
+	 height:50px;
+	 max-height: 50px;
+   display: inline-block;
+	 text-align: center;
+}
+
+.rouletteRed
+{
+	background-color: red;
+}
+
+.rouletteBlack
+{
+	background-color: black;
 }
 
 .firstCollumn {
@@ -46,6 +85,10 @@ html, body {
 	border-collapse: collapse;
 }
 
+#sendBetsButton {
+	display: none;
+}
+
 .tableTitle {
     height: 50px;
 		border: 1px solid black;
@@ -56,10 +99,6 @@ html, body {
 }
 
 .winnerRevealed {
-	display: none;
-}
-
-.acceptingBets {
 	display: none;
 }
 

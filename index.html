@@ -9,130 +9,66 @@
     <script language="javascript" type="text/javascript" src="main_abi.js"></script>
 
     <script language="javascript" type="text/javascript" src="js/utils.js"></script>
-    <script language="javascript" type="text/javascript" src="js/commonControls.js"></script>
     <script language="javascript" type="text/javascript" src="js/userControls.js"></script>
-    <script language="javascript" type="text/javascript" src="js/ownerControls.js"></script>
+  <!--  <script language="javascript" type="text/javascript" src="js/commonControls.js"></script>
+    <script language="javascript" type="text/javascript" src="js/ownerControls.js"></script> -->
+
+    <script>
+
+    $(document).on("click", ".rouletteNumber", function () {
+      var currElmModelAttr = $(this).attr('data-model-attr');
+      var inputId = $(this).attr("id") + 'Input';
+      var input = $('<input />', {
+          'type': 'text',
+          'id': inputId,
+          'class': 'rouletteBetInput',
+          'value': 0,
+          'maxlength': '4',
+          'size': '4'
+      });
+      $(this).replaceWith(input);
+      console.log("Generate input with id " + inputId);
+    })
+    </script>
   </head>
-  <body onload="checkMetamaskAndStart()">
+  <!-- <body onload="checkMetamaskAndStart()"> -->
+  <body>
 
-    <div class="title">
-      Game status:
-    </div>
-    <table>
-      <tr>
-        <td class="firstCollumn">Game status:</td>
-        <td>
-          <div id="txStatus">Not connected to contract</div>
-        </td>
-      </tr>
-      <tr>
-        <td class="firstCollumn">Game start time:</td>
-        <td>
-          <div id="txTimestamp"></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="firstCollumn">Hash of chosen number:</td>
-        <td>
-          <div id="txWinningNumberHash"></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="firstCollumn">Your last action:</td>
-        <td>
-          <div id="txLastAction"></div>
-        </td>
-      </tr>
-      <tr class="acceptingBets">
-        <td class="firstCollumn">Time until betting end:</td>
-        <td>
-          <div id="txTimeoutBetting"></div>
-        </td>
-      </tr>
-      <tr class="winnerRevealed">
-        <td class="firstCollumn">Chosen number:</td>
-        <td>
-          <div id="revealedNumber"></div>
-        </td>
-      </tr>
-    </table>
 
-    <div id="userControls">
-      <div class="title">
-        User controls
+    <div class="rouletteContainer">
+      <div class="rouletteVertical">
+        <div id="num3" class="rouletteNumber rouletteRed">
+          3
+        </div>
+        <div id="num2" class="rouletteNumber rouletteBlack">
+          2
+        </div>
+        <div id="num1" class="rouletteNumber rouletteRed">
+          1
+        </div>
       </div>
-      <div class="container">
-          <div class="firstCollumn">Place bet with hash</div>
-          <input class="wideInput" type="text" title="Hash of seed and chosen number" name="placeBetInput" id="placeBetInput">
-          <button class="button" onclick="placeBet()">Place bet</button>
-          <div class="help-tip">
-            <p>A bet is worth 1 ether. Contract status should be "Accepting bets". Generate your hash as described below.</p>
-          </div>
-      </div>
-      <div class="container">
-          <div class="firstCollumn">Claim bet</div>
-          <input class="wideInput" type="text" name="claimBet" id="claimBet">
-          <button class="button" onclick="claimBet()">Claim bet</button>
-          <div class="help-tip">
-            <p>Claim your bet by specifying the original seed.number combination you hashed. Contract status should be "Accepting claims". </p>
-          </div>
-      </div>
-    </div>
-    <div id="adminControls">
-      <div class="title">
-        Admin controls
-      </div>
-      <div class="container">
-            <div class="firstCollumn">Restart contract</div>
-            <input class="wideInput" type="text" title="Hash of seed and winning number" name="inputHash" id="inputHash">
-            <input type="text" name="inputTimeoutBetting" title="Betting time in minutes" id="inputTimeoutBetting">
-            <button class="button" onclick="reset()">Restart</button>
-              <div class="help-tip">
-                <p>To be executed by the contract owner only. Start a new round of the game by choosing a new secret number. Generate your has as described below. </p>
-              </div>
-      </div>
-      <div class="container">
-            <div class="firstCollumn">Reveal winning number</div>
-            <input class="wideInput" type="text" name="revealWinning" id="revealWinning">
-            <button class="button" onclick="revealNumber()">Reveal</button>
-              <div class="help-tip">
-                <p>To be executed by the contract owner only. Reveal the secret number by specifying the original seed.number combination you hashed. </p>
-              </div>
-            </div>
-      </div>
-      <div class="container">
-            <div class="firstCollumn">Award winner</div>
-
-            <button class="button" onclick="awardWinner()">Award winner</button>
-            <div class="help-tip">
-              <p>To be executed by the contract owner only. Stop accepting claims and reward the owner of the bet which is closest to the secret number. </p>
-            </div>
+      <div class="rouletteVertical">
+        <div id="num6" class="rouletteNumber rouletteBlack">
+          6
+        </div>
+        <div id="num5" class="rouletteNumber rouletteRed">
+          5
+        </div>
+        <div id="num4" class="rouletteNumber rouletteBlack">
+          4
+        </div>
       </div>
     </div>
 
-    <div class="winnerRevealed">
-      <div id="winnerTitle" class="title"> Current winner </div>
-      <table class="centeredTable">
-          <tr class="tableTitle">
-            <td class="halfWidth">Address of participant </td>
-            <td class="halfWidth">Difference</td>
-          </tr>
-          <tr>
-            <td id="txCurrentWinner"> <p/> </td>
-            <td id="txCurrentDifference"> <p/> </td>
-          </tr>
-      </table>
+    <button class="button" onclick="calculateBets()">Preview bets</button>
+
+    <div id="listBets">
     </div>
 
-    <div class="title">
-      Received bets
+    <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets</button>
+
+    <div id="txLastAction">
     </div>
-    <table class="centeredTable" id="betsTable">
-        <tr class="tableTitle">
-          <td class="halfWidth">Address of participant </td>
-          <td class="halfWidth">Hash of bet </td>
-        </tr>
-    </table>
 
   </body>
 </html>

@@ -1,3 +1,70 @@
+var betsPositions = [];
+var betsValues = [];
+var sumBets = 0;
+
+function verifyBetsArePayable() {
+  // Do this check in Web3 to safe gas
+  // TODO handle multiple players playing simultaneous
+  return true;
+}
+
+function calculateBets() {
+  var prefix = "num";
+  var suffix = "Input";
+  betsPositions = [];
+  betsValues = [];
+  sumBets = 0;
+
+  var accumulatedBets = "";
+  for(var i = 1; i <= 36; ++i) {
+    var curNumber = prefix + i + suffix;
+    var inputBox = document.getElementById(curNumber);
+
+    if(inputBox && inputBox.value > 0) {
+      betsPositions.push(i);
+      betsValues.push(parseInt(inputBox.value));
+      sumBets += betsValues[betsValues.length-1];
+
+      var curBet = "Bet " + inputBox.value + " on number " + i + "\n" ;
+      accumulatedBets += curBet;
+    }
+  }
+
+  if(!verifyBetsArePayable()) {
+    // TODO print error
+    return;
+  }
+
+  if(accumulatedBets.length > 0) {
+    accumulatedBets += "\n Totalling: " + sumBets + " Finney";
+    $("#listBets").text(accumulatedBets);
+  } else {
+    $("#listBets").text("No bets are made");
+    return;
+  }
+
+  $(".sendBetsButton").show();
+  $("#rouletteContainer").hide();
+}
+
+function sendBets() {
+
+  // This is going to take a while, so update the UI to let the user know
+  // the transaction has been sent
+  $("#txLastAction").text("Placing bet on the blockchain. This may take a while...");
+  // Send the tx to our contract:
+
+  return lottery.methods.sendBets(betsPositions, betsValues)
+  .send({ from: userAccount, value: web3.toWei(sumBets, 'finney') })
+  .on("receipt", function(receipt) {
+    $("#txLastAction").text("Successfully placed bets!");
+  })
+  .on("error", function(error) {
+    // Do something to alert the user their transaction has failed
+    $("#txLastAction").text(error.toString().substring(0, 200));
+  });
+}
+
 function claimBet() {
   var claimBet = document.getElementById('claimBet').value;
   if(!validateOriginalMessage(claimBet)) {
@@ -8,33 +75,6 @@ function claimBet() {
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Bet is being claimed.");
     // Transaction was accepted into the blockchain, let's redraw the UI
-  })
-  .on("error", function(error) {
-    // Do something to alert the user their transaction has failed
-    $("#txLastAction").text(error.toString().substring(0, 200));
-  });
-}
-
-
-function placeBet() {
-  var hashBet = document.getElementById('placeBetInput').value;
-  hashBet = validateHash(hashBet);
-  if(false == hashBet) {
-    return;
-  }
-  // This is going to take a while, so update the UI to let the user know
-  // the transaction has been sent
-  $("#txLastAction").text("Placing bet on the blockchain. This may take a while...");
-  // Send the tx to our contract:
-
-  return lottery.methods.acceptBet(hashBet)
-  .send({ from: userAccount, value: web3.toWei(1, 'ether') })
-  .on("receipt", function(receipt) {
-    $("#txLastAction").text("Successfully placed bet with hash " + hashBet + "!");
-    // Transaction was accepted into the blockchain, let's redraw the UI
-    // TODO show bets
-    //showBets();
-    //getZombiesByOwner(userAccount).then(displayZombies);
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
