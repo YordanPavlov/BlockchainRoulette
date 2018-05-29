@@ -8,33 +8,6 @@ var winnersRetrieved = 0;
 var currentWinners = "";
 
 
-  /*    NOT_INITIALIZED, // 0 - used only when initially deployed
-        ACCEPTING_BETS,  // 1
-        WINNER_REVEALED, // 2 - bets are not accepted only claims
-        WINNER_CHOSEN    // 3 - winner is chosen among claims
-  */
-
-function showAvailableBets(listOwners, listHashes) {
-  var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
-
-  for(var i =0; i < listHashes.length; ++i) {
-    // Insert a row in the table at the last row
-    var newRow   = tableRef.insertRow(tableRef.rows.length);
-
-    // Insert a cell in the row at index 0
-    var newCellOwner  = newRow.insertCell(0);
-    // Append a text node to the cell
-    var newTextOwner  = document.createTextNode(listOwners[i].toString());
-    newCellOwner.appendChild(newTextOwner);
-
-    // Insert a cell in the row at index 0
-    var newCellHash  = newRow.insertCell(1);
-    // Append a text node to the cell
-    var newTextHash  = document.createTextNode(listHashes[i]);
-    newCellHash.appendChild(newTextHash);
-  }
-}
-
 function checkMetamaskAndStart() {
 
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
@@ -46,7 +19,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0xe0f121de30b038380a7176a25e961351e468f377";
+  var lotteryAddress = "0xc9efcb60a98af5cdf77ec8397b4d0493c542e8f7";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
 
   // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
@@ -60,14 +33,8 @@ function checkMetamaskAndStart() {
     }
   });
 
-  /*lottery.events.NewBet({},{ fromBlock: 0, toBlock: 'latest' },
-    function(error, event){ console.log(event); })
-                .on('data', function(event){
-                      console.log(event);
-                })*/
-
   setTimeout(checkConnectivity, 5000);
-  setInterval(rePrintChanges, 10000);
+  subscribeNewBlocks();
 }
 
 function checkConnectivity() {
@@ -75,163 +42,24 @@ function checkConnectivity() {
      .then(() => console.log('Connected'))
      .catch(e => console.log('Wow. Something went wrong'));
 
-  lottery.methods.currentRoundStart().call(function (error, result) {
+  lottery.methods.checkBalance().call(function (error, result) {
       if(0 == result) {
-        alert("Problem connecting to contract");
+        alert("Problem connecting to contract or contract not ready.");
       }
-    })
+
+      $("#txContractBalance").text("Contract balance is: " + result);
+    });
 }
 
-function eraseBetsTable() {
-  var tableRef = document.getElementById('betsTable').getElementsByTagName('tbody')[0];
-
-console.log("Rows num is" + tableRef.rows.length);
-// Delete all rows but the first one, which we use as a header
- for(var i = tableRef.rows.length-1; i>0; --i) {
-    tableRef.deleteRow(i);
-  }
-}
-
-function checkForContractReset() {
-  lottery.methods.bettingIteration().call(function (error, result) {
-    // If the contract has been reset - all has to be reprinted
-     if(result > bettingStage) {
-       console.log("Betting iteration increased to: " + result);
-       betsRetrieved = 0;
-       winnersRetrieved = 0;
-       currentWinners = "";
-       gamePhaseBefore = -1;
-       bettingStage = result;
-       //var currentWinner = document.getElementById("currentWinner");
-       //currentWinner.style.display = "none";
-       $(".winnerRevealed").hide();
-       $(".acceptingBets").hide();
-       eraseBetsTable();
-     }
-   })
-}
-
-function getNewWinners(winnersInContract) {
-  lottery.methods.currentWinners(winnersRetrieved).call(function (error, winnerAtIndex) {
-    console.log("Winner at index is " + winnerAtIndex);
-      if(currentWinners.length > 0) {
-        currentWinners += ", ";
-      }
-      currentWinners += winnerAtIndex;
-
-      ++winnersRetrieved;
-      if(winnersRetrieved < winnersInContract) {
-        getNewWinners(winnersInContract);
-      } else {
-        $("#txCurrentWinner").text(currentWinners);
+// TODO add when Metamask provider supports it
+function subscribeNewBlocks() {
+    var subscription = web3js.eth.subscribe('newBlockHeaders', function(error, result){
+      if (error) {
+          console.error(error);
       }
   })
-}
+  .on("data", function(blockHeader){
+    console.log(blockHeader);
+  });
 
-function printCurrentWinners() {
-  lottery.methods.currentWinnersCurrentSize().call(function (error, winnersInContract) {
-    if(winnersInContract > winnersRetrieved) {
-      console.log("Winners in contract are " + winnersInContract);
-      console.log("Winners retrieved are " + winnersRetrieved);
-        getNewWinners(winnersInContract);
-    }
-  })
-
-  lottery.methods.closestDifference().call(function (error, result) {
-    $("#txCurrentDifference").text(result);
-  })
-}
-
-function rePrintChanges() {
-
-     var listHashes = [];
-     var listOwners = [];
-
-     // Recurively iterate all bets
-     function getHashFromContract() {
-       lottery.methods.listHashes(betsRetrieved).call(function (error, result) {
-         listHashes.push(result);
-         ++betsRetrieved;
-
-        // Get the owner of this new hash
-         lottery.methods.getAddressOwner(result).call(function (error, resultOwner) {
-           listOwners.push(resultOwner);
-
-           if(betsRetrieved < numBetsInContract) {
-             getHashFromContract();
-           } else {
-             showAvailableBets(listOwners, listHashes);
-           }
-         }
-       )
-       })
-     }
-
-     checkForContractReset();
-
-     lottery.methods.gamePhase().call(function (error, gamePhaseNow) {
-      // Checking all values from 0 upwards
-      if(0 == gamePhaseNow) {
-       $("#txStatus").text("Contract not yet initialized");
-       return;
-      }
-      // result >= 1
-      lottery.methods.currentRoundStart().call(function (error, result) {
-        var date = new Date(1000 * result);
-        $("#txTimestamp").text(date.toString());
-       })
-      lottery.methods.hashWinningNumber().call(function (error, result) {
-        $("#txWinningNumberHash").text(result);
-      })
-      // Check for new hashes
-      lottery.methods.listHashesCurrentSize().call(function (error, result) {
-           numBetsInContract = result;
-           if(betsRetrieved < numBetsInContract) {
-             getHashFromContract();
-           }
-           console.log("Bets retrieved is " + betsRetrieved);
-      })
-      if(!error && 1 == gamePhaseNow) {
-        $("#txStatus").text("Accepting bets");
-        $(".acceptingBets").show();
-      } else {
-        // result >=2 )
-        printCurrentWinners();
-        if(gamePhaseNow != gamePhaseBefore) {
-          lottery.methods.revealedNumber().call(function (error, result) {
-            if(result > 0) {
-              if(2 == gamePhaseNow) {
-                $("#txStatus").text("Winning number is revealed. Accepting claims.");
-              }
-              $("#revealedNumber").text(result);
-              $(".winnerRevealed").show();
-              //var currentWinner = document.getElementById("currentWinner");
-              //currentWinner.style.display = "block";
-          }})
-        }
-        if(3 == gamePhaseNow &&  gamePhaseNow != gamePhaseBefore) {
-          $("#winnerTitle").text("Final winner");
-          $("#txStatus").text("Game over. Winner is chosen.");
-        }
-      }
-      gamePhaseBefore = gamePhaseNow;
-    }).then(function() {
-      lottery.methods.currentRoundBettingEnd().call(function (error, result) {
-        var stringTime = "0 hours, 0 minutes, 0 seconds";
-        var secondsEpochNow = Date.now() / 1000;
-        var secsRemaining = result - secondsEpochNow;
-        console.log("Game phase before is " + gamePhaseBefore);
-        if(secsRemaining > 0)
-        {
-          stringTime = Math.floor(secsRemaining / 3600) + " hours ";
-          secsRemaining =  secsRemaining % 3600;
-          stringTime += Math.floor(secsRemaining / 60) + " minutes ";
-          secsRemaining = Math.floor(secsRemaining % 60);
-          stringTime += secsRemaining + " seconds";
-        } else if(1 == gamePhaseBefore) {
-          $("#txStatus").text("Accepting bets is over. Waiting for owner to reveal.");
-        }
-        $("#txTimeoutBetting").text(stringTime);
-      });
-    })
 }

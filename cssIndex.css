@@ -76,29 +76,7 @@ html, body {
 	display: inline-block;
 }
 
-.centeredTable {
-  margin-left: auto;
-	margin-right: auto;
-	width: 95%;
-	border: 1px solid black;
-	text-align: center;
-	border-collapse: collapse;
-}
-
 #sendBetsButton {
-	display: none;
-}
-
-.tableTitle {
-    height: 50px;
-		border: 1px solid black;
-}
-
-.halfWidth {
-	width: 50%;
-}
-
-.winnerRevealed {
 	display: none;
 }
 

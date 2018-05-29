@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.23;
 
 
 contract Lottery {
@@ -19,11 +19,12 @@ contract Lottery {
   mapping (address => uint) depositPerUser;
   uint8 constant NUM_BETTING_POSITIONS = 49;
   uint16 constant MAX_BET_FINNEY = 999;
+  uint constant FINNEY_TO_WEI = 1000000000000000;
 
   // We are not going to clear the list of hashes so we need the 'real' size
   //uint public listHashesCurrentSize = 0;
 
-  function Lottery() public {
+  constructor() public {
     owner = msg.sender;
   }
 
@@ -49,7 +50,7 @@ contract Lottery {
         ++betsPerUser[msg.sender].betsLength;
       }
       // Make sure that the sum of the bets equals what has been paid to the method
-      require(msg.value == sumValues);
+      require(msg.value == FINNEY_TO_WEI * sumValues);
       betsPerUser[msg.sender].placementTime = block.number;
   }
 
@@ -66,7 +67,7 @@ contract Lottery {
      *
      * "You can only access the hashes of the most recent 256 blocks, all other values will be zero."
      */
-    uint blockHashRandomness = uint(block.blockhash(placementTime + 2));
+    uint blockHashRandomness = uint(blockhash(placementTime + 2));
     require(blockHashRandomness > 0);
 
     uint chosenNumber = blockHashRandomness % 37;
@@ -74,7 +75,7 @@ contract Lottery {
     for(uint8 index = 0; index < betsPerUser[msg.sender].betsLength; ++index) {
       if(betsPerUser[msg.sender].bets[index].position == chosenNumber) {
         // Win on exact number
-        msg.sender.transfer(36 * betsPerUser[msg.sender].bets[index].value);
+        msg.sender.transfer(36 * betsPerUser[msg.sender].bets[index].value * FINNEY_TO_WEI);
       }
       // TODO add other bet places
     }
@@ -82,6 +83,10 @@ contract Lottery {
 
   function deposit() public payable {
     depositPerUser[msg.sender] += msg.value;
+  }
+
+  function checkBalance() public view returns (uint) {
+    return address(this).balance;
   }
 
 

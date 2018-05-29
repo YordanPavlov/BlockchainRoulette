@@ -10,8 +10,8 @@
 
     <script language="javascript" type="text/javascript" src="js/utils.js"></script>
     <script language="javascript" type="text/javascript" src="js/userControls.js"></script>
-  <!--  <script language="javascript" type="text/javascript" src="js/commonControls.js"></script>
-    <script language="javascript" type="text/javascript" src="js/ownerControls.js"></script> -->
+    <script language="javascript" type="text/javascript" src="js/commonControls.js"></script>
+  <!--    <script language="javascript" type="text/javascript" src="js/ownerControls.js"></script> -->
 
     <script>
 
@@ -22,7 +22,6 @@
           'type': 'text',
           'id': inputId,
           'class': 'rouletteBetInput',
-          'value': 0,
           'maxlength': '4',
           'size': '4'
       });
@@ -31,9 +30,7 @@
     })
     </script>
   </head>
-  <!-- <body onload="checkMetamaskAndStart()"> -->
-  <body>
-
+  <body onload="checkMetamaskAndStart()">
 
     <div class="rouletteContainer">
       <div class="rouletteVertical">
@@ -65,7 +62,12 @@
     <div id="listBets">
     </div>
 
-    <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets</button>
+    <div id="sendBetsButton">
+      <button class="button" onclick="sendBets()">Send bets</button>
+    </div>
+
+    <div id="txContractBalance">
+    </div>
 
     <div id="txLastAction">
     </div>

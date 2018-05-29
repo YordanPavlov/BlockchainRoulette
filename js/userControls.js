@@ -37,14 +37,15 @@ function calculateBets() {
 
   if(accumulatedBets.length > 0) {
     accumulatedBets += "\n Totalling: " + sumBets + " Finney";
-    $("#listBets").text(accumulatedBets);
+    var div = document.getElementById('listBets');
+    div.innerText = accumulatedBets;
+    //$("#listBets").textContent = accumulatedBets;
   } else {
     $("#listBets").text("No bets are made");
     return;
   }
 
-  $(".sendBetsButton").show();
-  $("#rouletteContainer").hide();
+  $("#sendBetsButton").show();
 }
 
 function sendBets() {
@@ -54,7 +55,7 @@ function sendBets() {
   $("#txLastAction").text("Placing bet on the blockchain. This may take a while...");
   // Send the tx to our contract:
 
-  return lottery.methods.sendBets(betsPositions, betsValues)
+  return lottery.methods.placeBets(betsPositions, betsValues)
   .send({ from: userAccount, value: web3.toWei(sumBets, 'finney') })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Successfully placed bets!");
@@ -62,6 +63,7 @@ function sendBets() {
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
     $("#txLastAction").text(error.toString().substring(0, 200));
+    console.error(error);
   });
 }
 
