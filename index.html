@@ -32,44 +32,55 @@
   </head>
   <body onload="checkMetamaskAndStart()">
 
-    <div class="rouletteContainer">
-      <div class="rouletteVertical">
-        <div id="num3" class="rouletteNumber rouletteRed">
-          3
+    <div id="offerBetting">
+      <div class="rouletteContainer">
+        <div class="rouletteVertical">
+          <div id="num3" class="rouletteNumber rouletteRed">
+            3
+          </div>
+          <div id="num2" class="rouletteNumber rouletteBlack">
+            2
+          </div>
+          <div id="num1" class="rouletteNumber rouletteRed">
+            1
+          </div>
         </div>
-        <div id="num2" class="rouletteNumber rouletteBlack">
-          2
-        </div>
-        <div id="num1" class="rouletteNumber rouletteRed">
-          1
+        <div class="rouletteVertical">
+          <div id="num6" class="rouletteNumber rouletteBlack">
+            6
+          </div>
+          <div id="num5" class="rouletteNumber rouletteRed">
+            5
+          </div>
+          <div id="num4" class="rouletteNumber rouletteBlack">
+            4
+          </div>
         </div>
       </div>
-      <div class="rouletteVertical">
-        <div id="num6" class="rouletteNumber rouletteBlack">
-          6
-        </div>
-        <div id="num5" class="rouletteNumber rouletteRed">
-          5
-        </div>
-        <div id="num4" class="rouletteNumber rouletteBlack">
-          4
-        </div>
+
+      <button class="button" onclick="calculateBets()">Preview bets</button>
+
+      <div id="listBets">
       </div>
-    </div>
 
-    <button class="button" onclick="calculateBets()">Preview bets</button>
-
-    <div id="listBets">
-    </div>
-
-    <div id="sendBetsButton">
-      <button class="button" onclick="sendBets()">Send bets</button>
+      <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets</button>
     </div>
 
     <div id="txContractBalance">
     </div>
 
     <div id="txLastAction">
+    </div>
+
+    <div id="claimBetsButtons">
+      <button class="button" onclick="claimBet()">Claim bets</button>
+      <button class="button" onclick="forgetBet()">Forget bets</button>
+    </div>
+
+    <div id="winsKnown">
+      <div id="txWins"> </div>
+      <div id="txWinsNumber"> </div>
+      <button class="button" onclick="offerBetting()">Bet again</button>
     </div>
 
   </body>

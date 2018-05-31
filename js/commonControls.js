@@ -1,11 +1,6 @@
 var lottery;
 var userAccount;
-var bettingStage = 0;
-var betsRetrieved = 0;
-var numBetsInContract = 0;
-var gamePhaseBefore = -1;
-var winnersRetrieved = 0;
-var currentWinners = "";
+
 
 
 function checkMetamaskAndStart() {
@@ -14,13 +9,15 @@ function checkMetamaskAndStart() {
   if (typeof web3 !== 'undefined') {
     // Use Mist/MetaMask's provider
     web3js = new Web3(web3.currentProvider);
+    web3jsEvents = new Web3('ws://localhost:8545')
   } else {
     alert("Missing Metamask plugin. Please install and login.");
     return;
   }
 
-  var lotteryAddress = "0xc9efcb60a98af5cdf77ec8397b4d0493c542e8f7";
+  var lotteryAddress = "0xfecf1ca5151b7822341d1f5b8d753596a90d07f9";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
+  lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
   // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
   //lottery.events.allEvents({ fromBlock: 'latest' }, console.log);
@@ -33,14 +30,20 @@ function checkMetamaskAndStart() {
     }
   });
 
-  setTimeout(checkConnectivity, 5000);
+  setTimeout(checkConnectivity, 400);
+  setTimeout(hasActiveBet, 500);
   subscribeNewBlocks();
+  watchWins();
 }
 
 function checkConnectivity() {
   web3js.eth.net.isListening()
-     .then(() => console.log('Connected'))
-     .catch(e => console.log('Wow. Something went wrong'));
+    .then(() => console.log('Connected Metamask'))
+    .catch(e => console.log('Wow. Something went wrong. Metamask'));
+
+  web3jsEvents.eth.net.isListening()
+    .then(() => console.log('Connected Events provider'))
+    .catch(e => console.log('Wow. Something went wrong. Events provider'));
 
   lottery.methods.checkBalance().call(function (error, result) {
       if(0 == result) {
@@ -51,15 +54,61 @@ function checkConnectivity() {
     });
 }
 
-// TODO add when Metamask provider supports it
 function subscribeNewBlocks() {
-    var subscription = web3js.eth.subscribe('newBlockHeaders', function(error, result){
+    var subscription = web3jsEvents.eth.subscribe('newBlockHeaders', function(error, result){
       if (error) {
           console.error(error);
       }
   })
   .on("data", function(blockHeader){
-    console.log(blockHeader);
+    console.log(blockHeader.number);
+    if(blockNumberAtBet > 0) {
+      if(blockHeader.number > blockNumberAtBet) {
+        blockNumberAtBet = 0;
+        offerClaiming();
+      }
+    }
   });
 
+  //setInterval(printBlockNumber, 10000);
+}
+
+function watchWins() {
+  //var event = web3jsEvents.claimWin({from: userAccount});
+  var event = lotteryEvents.events.claimWin({from: userAccount}, function(error, result){
+    console.log(result);
+    if (!error){
+      if(result.returnValues.value > 0){
+        $("#txWins").text("Congratulations! You have won " + result.returnValues.value + " finney!")
+      } else {
+        $("#txWins").text("No win on your last bet.")
+      }
+      $("#txWinsNumber").text("Winning number chosen was: " + result.returnValues.number);
+      $("#winsKnown").show();
+    } else {
+      console.error(error);
+    }
+
+  });
+
+}
+
+function hasActiveBet() {
+  lottery.methods.hasActiveBet().call(function (error, result) {
+      if(result) {
+        offerClaiming();
+      } else {
+        offerBetting();
+      }
+    });
+}
+
+function offerBetting() {
+  $("#claimBetsButtons").hide();
+  $("#offerBetting").show();
+}
+
+function offerClaiming() {
+  $("#offerBetting").hide();
+  $("#claimBetsButtons").show();
 }

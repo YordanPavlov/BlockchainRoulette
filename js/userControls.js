@@ -1,6 +1,7 @@
 var betsPositions = [];
 var betsValues = [];
 var sumBets = 0;
+var blockNumberAtBet = 0;
 
 function verifyBetsArePayable() {
   // Do this check in Web3 to safe gas
@@ -59,6 +60,9 @@ function sendBets() {
   .send({ from: userAccount, value: web3.toWei(sumBets, 'finney') })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Successfully placed bets!");
+    web3.eth.getBlockNumber(function(error, result) {
+      blockNumberAtBet = result;
+    });
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
@@ -68,12 +72,14 @@ function sendBets() {
 }
 
 function claimBet() {
-  var claimBet = document.getElementById('claimBet').value;
-  if(!validateOriginalMessage(claimBet)) {
-    return;
-  }
-  return lottery.methods.claimBet(claimBet)
-  .send({ from: userAccount })
+  return lottery.methods.claimBets()
+  .send({ from: userAccount }, function(error, result) {
+    if(result > 0) {
+      $("#txLastAction").text("You have won " + result + " finney from your bet!");
+    } else {
+      $("#txLastAction").text("You have not won on your last bet.");
+    }
+  })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Bet is being claimed.");
     // Transaction was accepted into the blockchain, let's redraw the UI
@@ -81,5 +87,13 @@ function claimBet() {
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
     $("#txLastAction").text(error.toString().substring(0, 200));
+  });
+}
+
+function forgetBet() {
+  return lottery.methods.clearBetsNoClaim()
+  .send({ from: userAccount })
+  .on("receipt", function(receipt) {
+    offerBetting();
   });
 }

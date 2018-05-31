@@ -54,9 +54,13 @@ contract Lottery {
       betsPerUser[msg.sender].placementTime = block.number;
   }
 
-  function clearBetsNoClaim() public {
+  function clearBets() public {
     betsPerUser[msg.sender].placementTime = 0;
     betsPerUser[msg.sender].betsLength = 0;
+  }
+
+  function hasActiveBet() public view returns (bool) {
+    return betsPerUser[msg.sender].placementTime > 0;
   }
 
   function claimBets() public {
@@ -70,16 +74,26 @@ contract Lottery {
     uint blockHashRandomness = uint(blockhash(placementTime + 2));
     require(blockHashRandomness > 0);
 
-    uint chosenNumber = blockHashRandomness % 37;
+    uint8 chosenNumber = uint8( blockHashRandomness % 37);
 
+    uint profitFinney = 0;
     for(uint8 index = 0; index < betsPerUser[msg.sender].betsLength; ++index) {
       if(betsPerUser[msg.sender].bets[index].position == chosenNumber) {
         // Win on exact number
-        msg.sender.transfer(36 * betsPerUser[msg.sender].bets[index].value * FINNEY_TO_WEI);
+        profitFinney = 36 * betsPerUser[msg.sender].bets[index].value;
+        break;
       }
       // TODO add other bet places
     }
+    if(profitFinney > 0) {
+      msg.sender.transfer(profitFinney * FINNEY_TO_WEI);
+    }
+
+    clearBets();
+    emit claimWin(msg.sender, chosenNumber, profitFinney);
   }
+
+  event claimWin(address from, uint8 number, uint value);
 
   function deposit() public payable {
     depositPerUser[msg.sender] += msg.value;

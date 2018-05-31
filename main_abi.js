@@ -1,9 +1,31 @@
-var lotteryABI =  [
+var lotteryABI = [
     {
       "inputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "number",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimWin",
+      "type": "event"
     },
     {
       "constant": false,
@@ -26,10 +48,24 @@ var lotteryABI =  [
     {
       "constant": false,
       "inputs": [],
-      "name": "clearBetsNoClaim",
+      "name": "clearBets",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "hasActiveBet",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     },
     {

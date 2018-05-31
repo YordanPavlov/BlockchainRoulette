@@ -76,7 +76,19 @@ html, body {
 	display: inline-block;
 }
 
+#offerBetting {
+	display: none;
+}
+
 #sendBetsButton {
+	display: none;
+}
+
+#claimBetsButtons {
+	display: none;
+}
+
+#winsKnown {
 	display: none;
 }
 
