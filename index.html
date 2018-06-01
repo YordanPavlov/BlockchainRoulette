@@ -32,6 +32,10 @@
   </head>
   <body onload="checkMetamaskAndStart()">
 
+    <div id="initialError">
+      Problem loading contract. Check your Metamask account.
+    </div>
+
     <div id="offerBetting">
       <div class="rouletteContainer">
         <div class="rouletteVertical">
@@ -63,6 +67,12 @@
       <div id="listBets">
       </div>
 
+      <div id="maxProfit">
+      </div>
+
+      <div id="notPayableWarning">
+      </div>
+
       <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets</button>
     </div>
 
@@ -80,7 +90,7 @@
     <div id="winsKnown">
       <div id="txWins"> </div>
       <div id="txWinsNumber"> </div>
-      <button class="button" onclick="offerBetting()">Bet again</button>
+      <button class="button" onclick="reloadBetting()">Bet again</button>
     </div>
 
   </body>

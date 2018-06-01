@@ -16,7 +16,6 @@ contract Lottery {
 
   address owner;
   mapping (address => BetsUser) betsPerUser;
-  mapping (address => uint) depositPerUser;
   uint8 constant NUM_BETTING_POSITIONS = 49;
   uint16 constant MAX_BET_FINNEY = 999;
   uint constant FINNEY_TO_WEI = 1000000000000000;
@@ -91,12 +90,14 @@ contract Lottery {
 
     clearBets();
     emit claimWin(msg.sender, chosenNumber, profitFinney);
+    emit balanceUpdated(address(this).balance);
   }
 
   event claimWin(address from, uint8 number, uint value);
+  event balanceUpdated(uint newBalance);
 
   function deposit() public payable {
-    depositPerUser[msg.sender] += msg.value;
+    emit balanceUpdated(address(this).balance);
   }
 
   function checkBalance() public view returns (uint) {

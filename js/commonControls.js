@@ -1,9 +1,12 @@
 var lottery;
 var userAccount;
+var contractBalance = 0;
+var offerBettingOriginal;
 
-
+const FINNEY_TO_WEI = 1000000000000000;
 
 function checkMetamaskAndStart() {
+  offerBettingOriginal = $("#offerBetting").clone();
 
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
   if (typeof web3 !== 'undefined') {
@@ -15,7 +18,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0xfecf1ca5151b7822341d1f5b8d753596a90d07f9";
+  var lotteryAddress = "0xcf103a5a6ceb7edb3b2e8195ea217f6ca545d52e";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
   lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
@@ -34,6 +37,7 @@ function checkMetamaskAndStart() {
   setTimeout(hasActiveBet, 500);
   subscribeNewBlocks();
   watchWins();
+  watchBalance();
 }
 
 function checkConnectivity() {
@@ -46,11 +50,10 @@ function checkConnectivity() {
     .catch(e => console.log('Wow. Something went wrong. Events provider'));
 
   lottery.methods.checkBalance().call(function (error, result) {
-      if(0 == result) {
+      if(error || 0 == result) {
         alert("Problem connecting to contract or contract not ready.");
       }
-
-      $("#txContractBalance").text("Contract balance is: " + result);
+      updateBalance(result);
     });
 }
 
@@ -76,7 +79,6 @@ function subscribeNewBlocks() {
 function watchWins() {
   //var event = web3jsEvents.claimWin({from: userAccount});
   var event = lotteryEvents.events.claimWin({from: userAccount}, function(error, result){
-    console.log(result);
     if (!error){
       if(result.returnValues.value > 0){
         $("#txWins").text("Congratulations! You have won " + result.returnValues.value + " finney!")
@@ -90,17 +92,38 @@ function watchWins() {
     }
 
   });
+}
 
+function watchBalance() {
+  //var event = web3jsEvents.claimWin({from: userAccount});
+  var event = lotteryEvents.events.balanceUpdated(function(error, result){
+    if (!error){
+      updateBalance(result.returnValues.newBalance);
+    } else {
+      console.error(error);
+    }
+  })
 }
 
 function hasActiveBet() {
   lottery.methods.hasActiveBet().call(function (error, result) {
+      $("#initialError").hide();
       if(result) {
         offerClaiming();
       } else {
         offerBetting();
       }
-    });
+    })
+}
+
+function updateBalance(newBalance) {
+  contractBalance = newBalance / FINNEY_TO_WEI;
+  $("#txContractBalance").text("Contract balance is: " + contractBalance + " finney");
+}
+
+function reloadBetting() {
+  $("#offerBetting").replaceWith(offerBettingOriginal.clone())
+  offerBetting();
 }
 
 function offerBetting() {

@@ -1,4 +1,4 @@
-var lotteryABI = [
+var lotteryABI =  [
     {
       "inputs": [],
       "payable": false,
@@ -25,6 +25,18 @@ var lotteryABI = [
         }
       ],
       "name": "claimWin",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "newBalance",
+          "type": "uint256"
+        }
+      ],
+      "name": "balanceUpdated",
       "type": "event"
     },
     {
