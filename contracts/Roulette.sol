@@ -3,20 +3,17 @@ pragma solidity ^0.4.23;
 
 contract Lottery {
 
-  struct Bet {
-      uint8 position;
-      uint value;
-  }
-
   struct BetsUser {
     uint placementTime; // height of blockchain at the time of placement
-    Bet[] bets;
+    uint8[MAX_BETTING_AT_ONCE] positions;
+    uint16[MAX_BETTING_AT_ONCE] values;
     uint8 betsLength;
   }
 
   address owner;
   mapping (address => BetsUser) betsPerUser;
   uint8 constant NUM_BETTING_POSITIONS = 49;
+  uint8 constant MAX_BETTING_AT_ONCE = 10;
   uint16 constant MAX_BET_FINNEY = 999;
   uint constant FINNEY_TO_WEI = 1000000000000000;
 
@@ -27,30 +24,26 @@ contract Lottery {
     owner = msg.sender;
   }
 
-  function placeBets(uint8[] positions, uint16[] values) public payable {
+  function placeBets(uint8[MAX_BETTING_AT_ONCE] positions,
+                    uint16[MAX_BETTING_AT_ONCE] values,
+                    uint8 length) public payable {
       require(0 == betsPerUser[msg.sender].placementTime);
       require(positions.length == values.length);
-      require(positions.length <= NUM_BETTING_POSITIONS);
+      require(positions.length <= MAX_BETTING_AT_ONCE);
 
       uint16 sumValues = 0;
-      for(uint8 index = 0; index < values.length; ++index) {
+      for(uint8 index = 0; index < length; ++index) {
         require(positions[index] <= NUM_BETTING_POSITIONS);
         require(values[index] <= MAX_BET_FINNEY);
         sumValues += values[index];
-        Bet memory newBet = Bet(positions[index], values[index]);
-        //newBet.position = position;
-        //newBet.value = msg.value;
-        if(betsPerUser[msg.sender].bets.length > betsPerUser[msg.sender].betsLength) {
-          // The array has been extended enough before.
-            betsPerUser[msg.sender].bets[betsPerUser[msg.sender].betsLength] = newBet;
-        } else {
-          betsPerUser[msg.sender].bets.push(newBet);
-        }
-        ++betsPerUser[msg.sender].betsLength;
       }
       // Make sure that the sum of the bets equals what has been paid to the method
       require(msg.value == FINNEY_TO_WEI * sumValues);
+
+      betsPerUser[msg.sender].positions = positions;
+      betsPerUser[msg.sender].values = values;
       betsPerUser[msg.sender].placementTime = block.number;
+      betsPerUser[msg.sender].betsLength = length;
   }
 
   function clearBets() public {
@@ -77,9 +70,9 @@ contract Lottery {
 
     uint profitFinney = 0;
     for(uint8 index = 0; index < betsPerUser[msg.sender].betsLength; ++index) {
-      if(betsPerUser[msg.sender].bets[index].position == chosenNumber) {
+      if(betsPerUser[msg.sender].positions[index] == chosenNumber) {
         // Win on exact number
-        profitFinney = 36 * betsPerUser[msg.sender].bets[index].value;
+        profitFinney = 36 * betsPerUser[msg.sender].values[index];
         break;
       }
       // TODO add other bet places
