@@ -5,15 +5,30 @@ var blockNumberAtBet = 0;
 var maxProfitPerNumber = [];
 
 // We use numbers to note the non-number positions on the table
-const FIRST_THIRD = 37;
-const MIDDLE_THIRD = 38;
-const LAST_THIRD = 39;
-const FIRST_HALF = 40;
-const SECOND_HALF = 41;
-const ODDS = 42;
-const EVENS = 43;
-const REDS = 44;
-const BLACKS = 45;
+const FIRST_COLLUMN = 37;
+const SECOND_COLLUMN = 38;
+const THIRD_COLLUMN = 39;
+const FIRST_THIRD = 40;
+const MIDDLE_THIRD = 41;
+const LAST_THIRD = 42;
+const FIRST_HALF = 43;
+const SECOND_HALF = 44;
+const ODDS = 45;
+const EVENS = 46;
+const REDS = 47;
+const BLACKS = 48;
+
+function iterateThirdWithStep(step, betValue) {
+  for(var j=0; j<12; ++j) {
+    maxProfitPerNumber[3*j+1] += 3 * betsValue);
+  }
+}
+
+function iterateThird(rangeStart, rangeEnd, betValue) {
+  for(var j=rangeStart; j<=rangeEnd; ++j) {
+    maxProfitPerNumber[j] += 3 * betValue;
+  }
+}
 
 function verifyBetsArePayable() {
   // Init with 0
@@ -25,18 +40,18 @@ function verifyBetsArePayable() {
         console.error(betsPositions + " is not a valid position!");
       } else if (betsPositions[i] < 37) {
         maxProfitPerNumber[betsPositions[i]] += 36 * betsValues[i];
+      } else if (FIRST_COLLUMN == betsPositions[i]) {
+        iterateThirdWithStep(1, betsValues[i]);
+      } else if (SECOND_COLLUMN == betsPositions[i]) {
+          iterateThirdWithStep(2), betsValues[i];
+      } else if (THIRD_COLLUMN == betsPositions[i]) {
+          iterateThirdWithStep(3, betsValues[i]);
       } else if (FIRST_THIRD == betsPositions[i]) {
-          for(var j=1; j<=12; ++j) {
-            maxProfitPerNumber[j] += 3 * betsValues[i];
-          }
+          iterateThird(1, 12, betsValues[i]);
       } else if (MIDDLE_THIRD == betsPositions[i]) {
-          for(var j=13; j<=24; ++j) {
-            maxProfitPerNumber[j] += 3 * betsValues[i];
-          }
+          iterateThird(13, 24, betsValues[i]);
       } else if (LAST_THIRD == betsPositions[i]) {
-          for(var j=25; j<=36; ++j) {
-            maxProfitPerNumber[j] += 3 * betsValues[i];
-          }
+          iterateThird(25, 36, betsValues[i]);
       } else if (FIRST_HALF == betsPositions[i]) {
           for(var j=1; j<=18; ++j) {
             maxProfitPerNumber[j] += 2 * betsValues[i];

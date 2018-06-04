@@ -1,4 +1,4 @@
-var lotteryABI =  [
+var lotteryABI = [
     {
       "inputs": [],
       "payable": false,
@@ -44,11 +44,15 @@ var lotteryABI =  [
       "inputs": [
         {
           "name": "positions",
-          "type": "uint8[]"
+          "type": "uint8[10]"
         },
         {
           "name": "values",
-          "type": "uint16[]"
+          "type": "uint16[10]"
+        },
+        {
+          "name": "length",
+          "type": "uint8"
         }
       ],
       "name": "placeBets",
