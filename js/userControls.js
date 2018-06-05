@@ -1,3 +1,4 @@
+const MAX_BETTING_AT_ONCE = 10;
 var betsPositions = [];
 var betsValues = [];
 var sumBets = 0;
@@ -20,7 +21,7 @@ const BLACKS = 48;
 
 function iterateThirdWithStep(step, betValue) {
   for(var j=0; j<12; ++j) {
-    maxProfitPerNumber[3*j+1] += 3 * betsValue);
+    maxProfitPerNumber[3*j+1] += 3 * betsValue;
   }
 }
 
@@ -29,7 +30,10 @@ function iterateThird(rangeStart, rangeEnd, betValue) {
     maxProfitPerNumber[j] += 3 * betValue;
   }
 }
-
+/**
+ * Return an array of two. First element is also an array - of the positions where maximum profit
+ * is achieved. Second element is the value of the maximum profit.
+ */
 function verifyBetsArePayable() {
   // Init with 0
   for(var j=0; j<37; ++j) {
@@ -113,13 +117,17 @@ function verifyBetsArePayable() {
   }
 
   var returnValues = [];
-  returnValues[0] = 0;
+  returnValues[0] = [];
   returnValues[1] = 0;
 
   for(var j=0; j<37; ++j) {
     if(maxProfitPerNumber[j] > returnValues[1]) {
+      // On this number the profit is better than before. Erase previous.
       returnValues[1] = maxProfitPerNumber[j];
-      returnValues[0] = j;
+      returnValues[0] = [j];
+    } else if(maxProfitPerNumber[j] == returnValues[1]) {
+      // This number equals the best profit. Add it.
+      returnValues[0].push(j);
     }
   }
 
@@ -134,33 +142,74 @@ function calculateBets() {
   sumBets = 0;
 
   var accumulatedBets = "";
-  for(var i = 1; i <= 36; ++i) {
-    var curNumber = prefix + i + suffix;
+  for(var index = 1; index <= 48; ++index) {
+    var curNumber = prefix + index + suffix;
     var inputBox = document.getElementById(curNumber);
 
     if(inputBox && inputBox.value > 0) {
-      betsPositions.push(i);
+      betsPositions.push(index);
       betsValues.push(parseInt(inputBox.value));
       sumBets += betsValues[betsValues.length-1];
 
-      var curBet = "Bet " + inputBox.value + " on number " + i + "\n" ;
+      var curBet;
+      if(index <= 36) {
+          curBet = "Bet " + inputBox.value + " on number " + index + "\n";
+      } else if (FIRST_COLLUMN == index) {
+          curBet = "Bet " + inputBox.value + " on first collumn \n";
+      } else if (SECOND_COLLUMN == index) {
+          curBet = "Bet " + inputBox.value + " on second collumn \n";
+      } else if (THIRD_COLLUMN == index) {
+          curBet = "Bet " + inputBox.value + " on third collumn \n";
+      } else if (FIRST_THIRD == index) {
+          curBet = "Bet " + inputBox.value + " on first third \n";
+      } else if (MIDDLE_THIRD == index) {
+          curBet = "Bet " + inputBox.value + " on middle third \n";
+      } else if (LAST_THIRD == index) {
+          curBet = "Bet " + inputBox.value + " on last third \n";
+      } else if (FIRST_HALF == index) {
+          curBet = "Bet " + inputBox.value + " on first half \n";
+      } else if (SECOND_HALF == index) {
+          curBet = "Bet " + inputBox.value + " on second half \n";
+      } else if (ODDS == index) {
+          curBet = "Bet " + inputBox.value + " on odd numbers \n";
+      } else if (EVENS == index) {
+          curBet = "Bet " + inputBox.value + " on even numbers \n";
+      } else if (REDS == index) {
+          curBet = "Bet " + inputBox.value + " on red numbers \n";
+      } else if (BLACKS == index) {
+          curBet = "Bet " + inputBox.value + " on black numbers \n";
+      }
+
       accumulatedBets += curBet;
     }
   }
 
-  if(accumulatedBets.length > 0) {
+  if(betsPositions.length > MAX_BETTING_AT_ONCE) {
+    $("#listBets").text("The number of bets exceeds the current maximum number of " + MAX_BETTING_AT_ONCE);
+    return;
+  } else if(betsPositions.length == 0) {
+    $("#listBets").text("No bets are made");
+    return;
+  } else {
     accumulatedBets += "\n Totalling: " + sumBets + " Finney";
     var div = document.getElementById('listBets');
     div.innerText = accumulatedBets;
-    //$("#listBets").textContent = accumulatedBets;
-  } else {
-    $("#listBets").text("No bets are made");
-    return;
   }
 
   var mostProfitableBet = verifyBetsArePayable();
-  $("#maxProfit").text("Your maximum possible profit is " + mostProfitableBet[1] + " on number " +
-    mostProfitableBet[0]);
+  var maxProfitText = "Your maximum possible profit is " + mostProfitableBet[1] + " on";
+  if(1 == mostProfitableBet[0].length) {
+    maxProfitText += " number ";
+    maxProfitText += mostProfitableBet[0][0];
+  } else {
+    maxProfitText += " numbers ";
+    maxProfitText += mostProfitableBet[0][0];
+    for(var indexProfit = 1; indexProfit < mostProfitableBet[0].length; ++indexProfit) {
+      maxProfitText += ", ";
+      maxProfitText += mostProfitableBet[0][indexProfit];
+    }
+  }
+  $("#maxProfit").text(maxProfitText);
 
   if(mostProfitableBet[1] > contractBalance) {
     $("#notPayableWarning").text("At this moment, your maximum win is not payable by the contract!")
@@ -178,7 +227,13 @@ function sendBets() {
   $("#txLastAction").text("Placing bet on the blockchain. This may take a while...");
   // Send the tx to our contract:
 
-  return lottery.methods.placeBets(betsPositions, betsValues)
+  var fixedSizeBetsPositions = [0,0,0,0,0,0,0,0,0,0];
+  var fixedSizeBetsValues = [0,0,0,0,0,0,0,0,0,0];
+  for(var i=0; i<betsPositions.length; ++i) {
+    fixedSizeBetsPositions[i] = betsPositions[i];
+    fixedSizeBetsValues[i] = betsValues[i];
+  }
+  return lottery.methods.placeBets(fixedSizeBetsPositions, fixedSizeBetsValues, betsPositions.length)
   .send({ from: userAccount, value: web3.toWei(sumBets, 'finney') })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Successfully placed bets!");

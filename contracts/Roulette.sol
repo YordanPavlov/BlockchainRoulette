@@ -17,6 +17,19 @@ contract Lottery {
   uint16 constant MAX_BET_FINNEY = 999;
   uint constant FINNEY_TO_WEI = 1000000000000000;
 
+  uint8 constant FIRST_COLLUMN = 37;
+  uint8 constant SECOND_COLLUMN = 38;
+  uint8 constant THIRD_COLLUMN = 39;
+  uint8 constant FIRST_THIRD = 40;
+  uint8 constant MIDDLE_THIRD = 41;
+  uint8 constant LAST_THIRD = 42;
+  uint8 constant FIRST_HALF = 43;
+  uint8 constant SECOND_HALF = 44;
+  uint8 constant ODDS = 45;
+  uint8 constant EVENS = 46;
+  uint8 constant REDS = 47;
+  uint8 constant BLACKS = 48;
+
   // We are not going to clear the list of hashes so we need the 'real' size
   //uint public listHashesCurrentSize = 0;
 
@@ -70,12 +83,27 @@ contract Lottery {
 
     uint profitFinney = 0;
     for(uint8 index = 0; index < betsPerUser[msg.sender].betsLength; ++index) {
-      if(betsPerUser[msg.sender].positions[index] == chosenNumber) {
-        // Win on exact number
-        profitFinney = 36 * betsPerUser[msg.sender].values[index];
-        break;
+      uint8 curBetPosition = betsPerUser[msg.sender].positions[index];
+      uint16 curBetValue = betsPerUser[msg.sender].values[index];
+      if(curBetPosition <= 36) {
+        if(curBetPosition == chosenNumber) {
+          // Win on exact number
+          profitFinney += 36 * curBetValue;
+        }
+      } else {
+        // The current bet is not a number, check group bets
+        if (( FIRST_COLLUMN == curBetPosition && 1 == (chosenNumber % 3)) ||
+            ( SECOND_COLLUMN == curBetPosition && 2 == (chosenNumber % 3)) ||
+            ( THIRD_COLLUMN == curBetPosition && 0 == (chosenNumber % 3)) ||
+            ( FIRST_THIRD == curBetPosition && (chosenNumber >= 1 && chosenNumber <= 12)) ||
+            ( MIDDLE_THIRD == curBetPosition && (chosenNumber >= 13 && chosenNumber <= 24)) ||
+            ( LAST_THIRD == curBetPosition && (chosenNumber >= 25 && chosenNumber <= 36)))
+        {
+                profitFinney += 3 * curBetValue;
+        }
       }
-      // TODO add other bet places
+
+
     }
     if(profitFinney > 0) {
       msg.sender.transfer(profitFinney * FINNEY_TO_WEI);
