@@ -1,4 +1,4 @@
-var lotteryABI =[
+var lotteryABI = [
     {
       "inputs": [],
       "payable": false,

@@ -3,6 +3,7 @@ var betsPositions = [];
 var betsValues = [];
 var sumBets = 0;
 var blockNumberAtBet = 0;
+var lastNumberPicked = 0;
 var maxProfitPerNumber = [];
 
 // We use numbers to note the non-number positions on the table
@@ -21,7 +22,7 @@ const BLACKS = 48;
 
 function iterateThirdWithStep(step, betValue) {
   for(var j=0; j<12; ++j) {
-    maxProfitPerNumber[3*j+1] += 3 * betsValue;
+    maxProfitPerNumber[3*j + step] += 3 * betValue;
   }
 }
 
@@ -40,6 +41,7 @@ function verifyBetsArePayable() {
     maxProfitPerNumber[j] = 0;
   }
   for(var i = 0; i < betsPositions.length; ++i) {
+    debugger;
       if(betsPositions[i] < 0) {
         console.error(betsPositions + " is not a valid position!");
       } else if (betsPositions[i] < 37) {
@@ -47,7 +49,7 @@ function verifyBetsArePayable() {
       } else if (FIRST_COLLUMN == betsPositions[i]) {
         iterateThirdWithStep(1, betsValues[i]);
       } else if (SECOND_COLLUMN == betsPositions[i]) {
-          iterateThirdWithStep(2), betsValues[i];
+          iterateThirdWithStep(2, betsValues[i]);
       } else if (THIRD_COLLUMN == betsPositions[i]) {
           iterateThirdWithStep(3, betsValues[i]);
       } else if (FIRST_THIRD == betsPositions[i]) {
@@ -119,7 +121,7 @@ function verifyBetsArePayable() {
   var returnValues = [];
   returnValues[0] = [];
   returnValues[1] = 0;
-
+debugger;
   for(var j=0; j<37; ++j) {
     if(maxProfitPerNumber[j] > returnValues[1]) {
       // On this number the profit is better than before. Erase previous.
@@ -142,14 +144,14 @@ function calculateBets() {
   sumBets = 0;
 
   var accumulatedBets = "";
-  for(var index = 1; index <= 48; ++index) {
+  for(var index = 0; index <= 48; ++index) {
     var curNumber = prefix + index + suffix;
     var inputBox = document.getElementById(curNumber);
 
     if(inputBox && inputBox.value > 0) {
       betsPositions.push(index);
       betsValues.push(parseInt(inputBox.value));
-      sumBets += betsValues[betsValues.length-1];
+      sumBets += betsValues[betsValues.length - 1];
 
       var curBet;
       if(index <= 36) {
@@ -212,10 +214,9 @@ function calculateBets() {
   $("#maxProfit").text(maxProfitText);
 
   if(mostProfitableBet[1] > contractBalance) {
-    $("#notPayableWarning").text("At this moment, your maximum win is not payable by the contract!")
-    $("#winsKnown").show();
+    notPayableState();
   } else {
-      $("#sendBetsButton").show();
+    sendOrResetState();
   }
 
 }
@@ -236,10 +237,11 @@ function sendBets() {
   return lottery.methods.placeBets(fixedSizeBetsPositions, fixedSizeBetsValues, betsPositions.length)
   .send({ from: userAccount, value: web3.toWei(sumBets, 'finney') })
   .on("receipt", function(receipt) {
-    $("#txLastAction").text("Successfully placed bets!");
     web3.eth.getBlockNumber(function(error, result) {
       blockNumberAtBet = result;
+      lastNumberPicked = 0;
     });
+    waitNextBlockState();
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
@@ -250,13 +252,7 @@ function sendBets() {
 
 function claimBet() {
   return lottery.methods.claimBets()
-  .send({ from: userAccount }, function(error, result) {
-    if(result > 0) {
-      $("#txLastAction").text("You have won " + result + " finney from your bet!");
-    } else {
-      $("#txLastAction").text("You have not won on your last bet.");
-    }
-  })
+  .send({ from: userAccount })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Bet is being claimed.");
     // Transaction was accepted into the blockchain, let's redraw the UI
@@ -268,7 +264,7 @@ function claimBet() {
 }
 
 function forgetBet() {
-  return lottery.methods.clearBetsNoClaim()
+  return lottery.methods.clearBets()
   .send({ from: userAccount })
   .on("receipt", function(receipt) {
     offerBetting();

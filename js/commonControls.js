@@ -18,12 +18,9 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0x263274f367a2379fec0421e600119ae35e1a2ae4";
+  var lotteryAddress = "0x7a6ceffa62f9088d21e63b7041866093da04bbc0";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
   lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
-
-  // web3 1.0 requires a websocket provider, which Metamask do not have yet (08.May.2018)
-  //lottery.events.allEvents({ fromBlock: 'latest' }, console.log);
 
   web3js.eth.getAccounts(function(error, accounts) {
     if(error) {
@@ -64,11 +61,11 @@ function subscribeNewBlocks() {
       }
   })
   .on("data", function(blockHeader){
-    console.log(blockHeader.number);
     if(blockNumberAtBet > 0) {
-      if(blockHeader.number > blockNumberAtBet) {
+      if(blockHeader.number > blockNumberAtBet + 1) {
         blockNumberAtBet = 0;
-        offerClaiming();
+        lastNumberPicked = blockHeader.hash % 37;
+        offerClaimState();
       }
     }
   });
@@ -80,13 +77,8 @@ function watchWins() {
   //var event = web3jsEvents.claimWin({from: userAccount});
   var event = lotteryEvents.events.claimWin({from: userAccount}, function(error, result){
     if (!error){
-      if(result.returnValues.value > 0){
-        $("#txWins").text("Congratulations! You have won " + result.returnValues.value + " finney!")
-      } else {
-        $("#txWins").text("No win on your last bet.")
-      }
-      $("#txWinsNumber").text("Winning number chosen was: " + result.returnValues.number);
-      $("#winsKnown").show();
+      winAnnounceState(result.returnValues.value);
+
     } else {
       console.error(error);
     }
@@ -105,13 +97,16 @@ function watchBalance() {
   })
 }
 
+// Load correct game phase on reload
 function hasActiveBet() {
   lottery.methods.hasActiveBet().call(function (error, result) {
       $("#initialError").hide();
-      if(result) {
-        offerClaiming();
+      if(result > 0) {
+        // Restore the moment the bet was made from the contract
+        blockNumberAtBet = result;
+        waitNextBlockState();
       } else {
-        offerBetting();
+        initialBettingState();
       }
     })
 }
@@ -121,17 +116,77 @@ function updateBalance(newBalance) {
   $("#txContractBalance").text("Contract balance is: " + contractBalance + " finney");
 }
 
-function reloadBetting() {
-  $("#offerBetting").replaceWith(offerBettingOriginal.clone())
-  offerBetting();
+function hideWins() {
+  $("#txWinsNumber").hide();
+  $("#winsKnown").hide();
 }
 
-function offerBetting() {
+function reloadBetting() {
+  $("#offerBetting").replaceWith(offerBettingOriginal.clone())
+  initialBettingState();
+}
+
+function initialBettingState() {
   $("#claimBetsButtons").hide();
+  hideWins();
+  $("#txLastAction").text("Expecting your bet.")
+  $("#offerBetting").show();
+  attachClickable();
+}
+
+function sendOrResetState() {
+    $("#sendBetsButton").show();
+    $("#reloadBettingButton").show();
+    $("#txLastAction").text("Send your bets or start over.")
+}
+
+function waitNextBlockState() {
+  $("#offerBetting").hide();
+  $("#reloadBettingButton").hide();
+  $("#txLastAction").text("Waiting for next block for bet to become claimable.")
+}
+
+function offerClaimState() {
+  $("#offerBetting").hide();
+  $("#claimBetsButtons").show();
+  $("#reloadBettingButton").hide();
+  $("#txLastAction").text("Next block is mined. Winning number is " + lastNumberPicked);
   $("#offerBetting").show();
 }
 
-function offerClaiming() {
-  $("#offerBetting").hide();
-  $("#claimBetsButtons").show();
+function winAnnounceState(winValue) {
+  if(winValue > 0){
+    $("#txWins").text("Congratulations! You have won " + winValue + " finney!")
+  } else {
+    $("#txWins").text("No win on your last bet.")
+  }
+  $("#txWinsNumber").show();
+  $("#txWinsNumber").text("Winning number chosen was: " + winValue);
+  $("#winsKnown").show();
+  $("#reloadBettingButton").show();
+  $("#claimBetsButtons").hide();
+}
+
+function notPayableState() {
+  $("#txLastAction").text("At this moment, your maximum win is not payable by the contract!")
+  $("reloadBettingButton").show();
+}
+
+function attachClickable() {
+  $("#offerBetting").on("click", ".rouletteNumber", function () {
+    var inputId = $(this).attr("id") + 'Input';
+    var input = $('<input />', {
+        'type': 'text',
+        'id': inputId,
+        'class': 'rouletteBetInput',
+        'maxlength': '4',
+        'size': '4'
+    });
+    $(this).replaceWith(input);
+    console.log("Generate input with id " + inputId);
+  })
+}
+
+function removeClickable() {
+  document.getElementById('offerBetting').removeAttribute("onclick");
 }

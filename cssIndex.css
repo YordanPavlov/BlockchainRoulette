@@ -92,8 +92,8 @@ html, body {
 }
 
 .rouletteNumberInner {
-	padding-top: 15px;
-	text-align: center;
+	padding-top: 3px;
+	padding-left: 3px;
 }
 
 .rouletteBetInput {
@@ -147,6 +147,10 @@ html, body {
 }
 
 #winsKnown {
+	display: none;
+}
+
+#reloadBBettingButton {
 	display: none;
 }
 

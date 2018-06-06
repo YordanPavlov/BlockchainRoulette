@@ -30,8 +30,6 @@ contract Lottery {
   uint8 constant REDS = 47;
   uint8 constant BLACKS = 48;
 
-  // We are not going to clear the list of hashes so we need the 'real' size
-  //uint public listHashesCurrentSize = 0;
 
   constructor() public {
     owner = msg.sender;
@@ -65,7 +63,7 @@ contract Lottery {
   }
 
   function hasActiveBet() public view returns (bool) {
-    return betsPerUser[msg.sender].placementTime > 0;
+    return betsPerUser[msg.sender].placementTime;;
   }
 
   function claimBets() public {
@@ -99,7 +97,16 @@ contract Lottery {
             ( MIDDLE_THIRD == curBetPosition && (chosenNumber >= 13 && chosenNumber <= 24)) ||
             ( LAST_THIRD == curBetPosition && (chosenNumber >= 25 && chosenNumber <= 36)))
         {
-                profitFinney += 3 * curBetValue;
+            profitFinney += 3 * curBetValue;
+        }
+        else if (( FIRST_HALF == curBetPosition && (chosenNumber >= 0 && chosenNumber <= 18)) ||
+                 ( SECOND_HALF == curBetPosition && (chosenNumber >= 19 && chosenNumber <= 36)) ||
+                 ( ODDS == curBetPosition && (chosenNumber % 2 == 1 )) ||
+                 ( EVENS == curBetPosition && (chosenNumber % 2 == 0 )) ||
+                 ( REDS == curBetPosition && isNumRed(chosenNumber)) ||
+                 ( BLACKS == curBetPosition && isNumBlack(chosenNumber)))
+        {
+            profitFinney += 2 * curBetValue;
         }
       }
 
@@ -125,7 +132,21 @@ contract Lottery {
     return address(this).balance;
   }
 
+  function isNumRed(uint8 num) private pure returns (bool){
+    if( 1 == num  || 3 == num || 5 == num || 7 == num || 9 == num ||
+      12 == num || 14 == num || 16 == num || 18 == num || 19 == num ||
+      21 == num || 23 == num || 25 == num || 27 == num || 30 == num ||
+      32 == num || 34 == num || 36 == num) {
+        return true;
+      }
+  }
 
-
-
+  function isNumBlack(uint8 num) private pure returns (bool){
+    if( 2 == num  || 4 == num || 6 == num || 8 == num || 10 == num ||
+      11 == num || 13 == num || 15 == num || 17 == num || 20 == num ||
+      22 == num || 24 == num || 26 == num || 28 == num || 29 == num ||
+      31 == num || 33 == num || 35 == num) {
+        return true;
+      }
+  }
 }

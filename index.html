@@ -13,22 +13,8 @@
     <script language="javascript" type="text/javascript" src="js/commonControls.js"></script>
   <!--    <script language="javascript" type="text/javascript" src="js/ownerControls.js"></script> -->
 
-    <script>
-
-    $(document).on("click", ".rouletteNumber", function () {
-      var inputId = $(this).attr("id") + 'Input';
-      var input = $('<input />', {
-          'type': 'text',
-          'id': inputId,
-          'class': 'rouletteBetInput',
-          'maxlength': '4',
-          'size': '4'
-      });
-      $(this).replaceWith(input);
-      console.log("Generate input with id " + inputId);
-    })
-    </script>
   </head>
+
   <body onload="checkMetamaskAndStart()">
 
     <div id="initialError">
@@ -356,9 +342,6 @@
       <div id="maxProfit">
       </div>
 
-      <div id="notPayableWarning">
-      </div>
-
       <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets</button>
     </div>
 
@@ -376,6 +359,9 @@
     <div id="winsKnown">
       <div id="txWins"> </div>
       <div id="txWinsNumber"> </div>
+    </div>
+
+    <div id="reloadBettingButton">
       <button class="button" onclick="reloadBetting()">Bet again</button>
     </div>
 
