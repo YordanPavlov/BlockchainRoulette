@@ -2,6 +2,7 @@ var lottery;
 var userAccount;
 var contractBalance = 0;
 var offerBettingOriginal;
+var lastCreatedInput;
 
 const FINNEY_TO_WEI = 1000000000000000;
 
@@ -18,7 +19,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0x7a6ceffa62f9088d21e63b7041866093da04bbc0";
+  var lotteryAddress = "0xcd175ede74b1c2b56564d77d2c0c0a78b8950b45";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
   lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
@@ -174,6 +175,11 @@ function notPayableState() {
 
 function attachClickable() {
   $("#offerBetting").on("click", ".rouletteNumber", function () {
+    if ($(this).children().length > 1) {
+      // We have already inserted input element
+      return;
+    }
+    removeLastCreatedInputIfEmpty();
     var inputId = $(this).attr("id") + 'Input';
     var input = $('<input />', {
         'type': 'text',
@@ -182,11 +188,22 @@ function attachClickable() {
         'maxlength': '4',
         'size': '4'
     });
-    $(this).replaceWith(input);
-    console.log("Generate input with id " + inputId);
+    //$(this).replaceWith(input);
+    $(this).append(input);
+    lastCreatedInput = inputId;
+
+    //console.log("Generate input with id " + inputId);
   })
 }
 
-function removeClickable() {
+function removeLastCreatedInputIfEmpty() {
+  var inputBox = document.getElementById(lastCreatedInput);
+
+  if(inputBox && inputBox.value == 0) {
+    $('#' + lastCreatedInput).remove();
+  }
+}
+
+function removeAllClickable() {
   document.getElementById('offerBetting').removeAttribute("onclick");
 }

@@ -77,7 +77,7 @@ var lotteryABI = [
       "outputs": [
         {
           "name": "",
-          "type": "bool"
+          "type": "uint256"
         }
       ],
       "payable": false,

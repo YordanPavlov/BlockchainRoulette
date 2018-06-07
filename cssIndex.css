@@ -27,15 +27,12 @@ html, body {
 	display: flex;
   flex-direction: row;
 	flex-wrap: nowrap;
-	border-style: solid;
-	border-width: 3px;
-	border-color: gray;
 }
 
 .rouletteVertical {
-	width:50px;
-	max-width:50px;
-	height:150px;
+	width:75px;
+	max-width:75px;
+	height:225px;
 	display: flex;
   flex-direction: column;
 	flex-wrap: nowrap;
@@ -44,14 +41,14 @@ html, body {
 }
 
 .lowerGroupsContainer {
-	padding-left: 50px;
-	padding-right: 50px;
+	padding-left: 75px;
+	padding-right: 75px;
 }
 
 .rouletteVerticalGroup {
-	width: 200px;
-	max-width: 200px;
-	height: 100px;
+	width: 300px;
+	max-width: 300px;
+	height: 150px;
 	display: flex;
   flex-direction: column;
 	flex-wrap: nowrap;
@@ -61,30 +58,31 @@ html, body {
 }
 
 .rouletteNumber {
-   width:50px;
-   max-width:50px;
-	 height:50px;
-	 max-height: 50px;
+   width:75px;
+   max-width:75px;
+	 height:75px;
+	 max-height: 75px;
    display: inline-block;
 	 border-style: solid;
 	 border-width: 1px;
 }
 
 .rouletteDoubleBox {
-   width: 100px;
-   max-width: 100px;
-	 height: 50px;
-	 max-height: 50px;
-   display: inline-block;
+   width: 150px;
+   max-width: 150px;
+	 height: 75px;
+	 max-height: 75px;
+   display: flex;
+	 justify-content: center;
 	 border-style: solid;
 	 border-width: 1px;
 }
 
 .rouletteQuadBox {
-   width: 200px;
-   max-width: 200px;
-	 height: 50px;
-	 max-height: 50px;
+   width: 300px;
+   max-width: 300px;
+	 height: 75px;
+	 max-height: 75px;
    display: flex;
 	 justify-content: center;
 	 border-style: solid;
@@ -99,10 +97,11 @@ html, body {
 .rouletteBetInput {
    width:45px;
    max-width:45px;
-	 height:45px;
-	 max-height: 45px;
+	 height: 25px;
+	 max-height: 25px;
    display: inline-block;
 	 text-align: center;
+	 margin: 10px 0px 0px 15px;
 }
 
 .rouletteRed {
@@ -119,12 +118,6 @@ html, body {
 
 .firstCollumn {
 	width: 200px;
-	display: inline-block;
-}
-
-.wideInput {
-	width: 400px;
-	margin: auto 10px;
 	display: inline-block;
 }
 
@@ -152,95 +145,4 @@ html, body {
 
 #reloadBBettingButton {
 	display: none;
-}
-
-.help-tip{
-/*    position: absolute;
-    top: 18px;
-    right: 18px;*/
-		position: relative;
-    text-align: center;
-    background-color: #808080;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 14px;
-    line-height: 26px;
-    cursor: default;
-		display: inline-block;
-}
-
-.help-tip:hover {
-	background-color: #000;
-}
-
-.help-tip:before {
-    content:'?';
-    font-weight: bold;
-    color:#fff;
-}
-
-.help-tip:hover p {
-    display:block;
-    transform-origin: 100% 0%;
-
-    /*-webkit-animation: fadeIn 1s ease-in-out;
-    animation: fadeIn 1s ease-in-out;*/
-
-}
-
-.help-tip p {    /* The tooltip */
-    display: none;
-		text-align: left;
-		background-color: #000;
-		padding: 20px;
-		width: 300px;
-		position: absolute;
-		border-radius: 3px;
-		box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
-		left: 35px;
-		color: #FFF;
-		top: -8px;
-		font-size: 13px;
-		line-height: 1.4;
-}
-
-.help-tip p:before{ /* The pointer of the tooltip */
-		position: absolute;
-		content: '';
-		width: 0;
-		height: 0;
-		border: 6px solid transparent;
-		border-bottom-color: #000;
-		left: -11px;
-		top: 0px;
-		transform: rotate(-90deg);
-}
-
-.help-tip p:after{ /* Prevents the tooltip from being hidden */
-    width:100%;
-    height:40px;
-    content:'';
-    position: absolute;
-    top:-40px;
-    left:0;
-}
-
-/* CSS animation */
-
-@-webkit-keyframes fadeIn {
-    0% {
-        opacity:0;
-        transform: scale(0.6);
-    }
-
-    100% {
-        opacity:100%;
-        transform: scale(1);
-    }
-}
-
-@keyframes fadeIn {
-    0% { opacity:0; }
-    100% { opacity:100%; }
 }

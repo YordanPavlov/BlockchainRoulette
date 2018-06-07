@@ -62,8 +62,8 @@ contract Lottery {
     betsPerUser[msg.sender].betsLength = 0;
   }
 
-  function hasActiveBet() public view returns (bool) {
-    return betsPerUser[msg.sender].placementTime;;
+  function hasActiveBet() public view returns (uint) {
+    return betsPerUser[msg.sender].placementTime;
   }
 
   function claimBets() public {
