@@ -19,7 +19,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0xcd175ede74b1c2b56564d77d2c0c0a78b8950b45";
+  var lotteryAddress = "0x0a0e31aed63867fd7dcfe7f3a5a142a0465b8b85";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
   lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
@@ -65,7 +65,6 @@ function subscribeNewBlocks() {
     if(blockNumberAtBet > 0) {
       if(blockHeader.number > blockNumberAtBet + 1) {
         blockNumberAtBet = 0;
-        lastNumberPicked = blockHeader.hash % 37;
         offerClaimState();
       }
     }
@@ -78,7 +77,7 @@ function watchWins() {
   //var event = web3jsEvents.claimWin({from: userAccount});
   var event = lotteryEvents.events.claimWin({from: userAccount}, function(error, result){
     if (!error){
-      winAnnounceState(result.returnValues.value);
+      winAnnounceState(result.returnValues.number, result.returnValues.value);
 
     } else {
       console.error(error);
@@ -151,18 +150,18 @@ function offerClaimState() {
   $("#offerBetting").hide();
   $("#claimBetsButtons").show();
   $("#reloadBettingButton").hide();
-  $("#txLastAction").text("Next block is mined. Winning number is " + lastNumberPicked);
+  $("#txLastAction").text("Next block is mined. Winning number is now known.");
   $("#offerBetting").show();
 }
 
-function winAnnounceState(winValue) {
+function winAnnounceState(winNumber, winValue) {
   if(winValue > 0){
     $("#txWins").text("Congratulations! You have won " + winValue + " finney!")
   } else {
     $("#txWins").text("No win on your last bet.")
   }
   $("#txWinsNumber").show();
-  $("#txWinsNumber").text("Winning number chosen was: " + winValue);
+  $("#txWinsNumber").text("Winning number chosen was: " + winNumber);
   $("#winsKnown").show();
   $("#reloadBettingButton").show();
   $("#claimBetsButtons").hide();

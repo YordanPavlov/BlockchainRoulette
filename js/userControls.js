@@ -3,7 +3,6 @@ var betsPositions = [];
 var betsValues = [];
 var sumBets = 0;
 var blockNumberAtBet = 0;
-var lastNumberPicked = 0;
 var maxProfitPerNumber = [];
 
 // We use numbers to note the non-number positions on the table
@@ -41,7 +40,6 @@ function verifyBetsArePayable() {
     maxProfitPerNumber[j] = 0;
   }
   for(var i = 0; i < betsPositions.length; ++i) {
-    debugger;
       if(betsPositions[i] < 0) {
         console.error(betsPositions + " is not a valid position!");
       } else if (betsPositions[i] < 37) {
@@ -121,7 +119,7 @@ function verifyBetsArePayable() {
   var returnValues = [];
   returnValues[0] = [];
   returnValues[1] = 0;
-debugger;
+
   for(var j=0; j<37; ++j) {
     if(maxProfitPerNumber[j] > returnValues[1]) {
       // On this number the profit is better than before. Erase previous.
@@ -239,7 +237,6 @@ function sendBets() {
   .on("receipt", function(receipt) {
     web3.eth.getBlockNumber(function(error, result) {
       blockNumberAtBet = result;
-      lastNumberPicked = 0;
     });
     waitNextBlockState();
   })
