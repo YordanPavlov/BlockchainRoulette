@@ -19,7 +19,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0x0a0e31aed63867fd7dcfe7f3a5a142a0465b8b85";
+  var lotteryAddress = "0x196943fc4a60ad99288053020a459fd3fa811c1c";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
   lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
@@ -189,6 +189,7 @@ function attachClickable() {
     });
     //$(this).replaceWith(input);
     $(this).append(input);
+    $('#' + inputId).focus();
     lastCreatedInput = inputId;
 
     //console.log("Generate input with id " + inputId);
