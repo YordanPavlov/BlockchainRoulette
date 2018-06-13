@@ -13,16 +13,16 @@ function checkMetamaskAndStart() {
   if (typeof web3 !== 'undefined') {
     // Use Mist/MetaMask's provider
     web3js = new Web3(web3.currentProvider);
-    web3jsEvents = new Web3('ws://localhost:8545')
-    //web3jsEvents = new Web3('wss://mainnet.infura.io/ws');
+    //web3jsEvents = new Web3('ws://localhost:8545')
+    //web3jsEvents = new Web3('wss://ropsten.infura.io/ws');
   } else {
     alert("Missing Metamask plugin. Please install and login.");
     return;
   }
 
-  var lotteryAddress = "0xa4020971f744fdabd5c9e513921bdef55072fa4e";
+  var lotteryAddress = "0x196943fc4a60ad99288053020a459fd3fa811c1c";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
-  lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
+  //lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
   web3js.eth.getAccounts(function(error, accounts) {
     if(error) {
@@ -36,7 +36,7 @@ function checkMetamaskAndStart() {
   setTimeout(hasActiveBet, 1000);
   subscribeNewBlocks();
 //  watchWins();
-  watchBalance();
+//  watchBalance();
 }
 
 function checkConnectivity() {
@@ -44,10 +44,10 @@ function checkConnectivity() {
     .then(() => console.log('Connected Metamask'))
     .catch(e => console.log('Wow. Something went wrong. Metamask'));
 
-  web3jsEvents.eth.net.isListening()
+/*  web3jsEvents.eth.net.isListening()
     .then(() => console.log('Connected Events provider'))
     .catch(e => console.log('Wow. Something went wrong. Events provider'));
-
+*/
   lottery.methods.checkBalance().call(function (error, result) {
       if(error || 0 == result) {
         alert("Problem connecting to contract or contract not ready.");
@@ -57,13 +57,14 @@ function checkConnectivity() {
     });
 }
 
-function subscribeNewBlocks() {
+/*function subscribeNewBlocks() {
     subscriptionHeaders = web3jsEvents.eth.subscribe('newBlockHeaders', function(error, result){
       if (error) {
           console.error(error);
       }
   })
   .on("data", function(blockHeader){
+    console.log("New block header received, number is " + blockHeader.number);
     if(blockNumberAtBet > 0) {
       if(blockHeader.number > blockNumberAtBet + 1) {
         blockNumberAtBet = 0;
@@ -72,6 +73,19 @@ function subscribeNewBlocks() {
     }
   });
 
+}*/
+
+function subscribeNewBlocks() {
+
+  web3js.eth.getBlock("latest", function(error, result) {
+    if(blockNumberAtBet > 0) {
+      if(result.number > blockNumberAtBet + 1) {
+        blockNumberAtBet = 0;
+        offerClaimState();
+      }
+    }
+  });
+  setTimeout(subscribeNewBlocks, 5000);
 }
 
 /* Event emitting is not currently reliably supported. For this reason last win value is stored
@@ -90,7 +104,7 @@ function watchWins() {
   });
 }*/
 
-function watchBalance() {
+/*function watchBalance() {
   //var event = web3jsEvents.claimWin({from: userAccount});
   var event = lotteryEvents.events.balanceUpdated(function(error, result){
     if (!error){
@@ -99,7 +113,7 @@ function watchBalance() {
       console.error(error);
     }
   })
-}
+}*/
 
 // Load correct game phase on reload
 function hasActiveBet() {
@@ -110,6 +124,7 @@ function hasActiveBet() {
   }
   // The contract is reachable (balance is positive), now check if the user has an active bet
   lottery.methods.hasActiveBet().call(function (error, result) {
+    console.log(result);
         if(result > 0) {
           console.log("User has an active bet");
         // Restore the moment the bet was made from the contract
