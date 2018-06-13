@@ -20,7 +20,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0xf4c9e59d3c967839f01d3410c94c16833f0e00a6";
+  var lotteryAddress = "0xa4020971f744fdabd5c9e513921bdef55072fa4e";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
   lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
@@ -51,8 +51,9 @@ function checkConnectivity() {
   lottery.methods.checkBalance().call(function (error, result) {
       if(error || 0 == result) {
         alert("Problem connecting to contract or contract not ready.");
+      } else {
+          updateBalance(result);
       }
-      updateBalance(result);
     });
 }
 
@@ -112,7 +113,7 @@ function hasActiveBet() {
         if(result > 0) {
           console.log("User has an active bet");
         // Restore the moment the bet was made from the contract
-        blockNumberAtBet = result;
+        blockNumberAtBet = parseInt(result);
         waitNextBlockState();
       } else {
         console.log("User has No active bet");
