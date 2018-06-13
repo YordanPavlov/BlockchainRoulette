@@ -14,12 +14,13 @@ function checkMetamaskAndStart() {
     // Use Mist/MetaMask's provider
     web3js = new Web3(web3.currentProvider);
     web3jsEvents = new Web3('ws://localhost:8545')
+    //web3jsEvents = new Web3('wss://mainnet.infura.io/ws');
   } else {
     alert("Missing Metamask plugin. Please install and login.");
     return;
   }
 
-  var lotteryAddress = "0x196943fc4a60ad99288053020a459fd3fa811c1c";
+  var lotteryAddress = "0xf4c9e59d3c967839f01d3410c94c16833f0e00a6";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
   lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
@@ -32,9 +33,9 @@ function checkMetamaskAndStart() {
   });
 
   setTimeout(checkConnectivity, 400);
-  setTimeout(hasActiveBet, 500);
+  setTimeout(hasActiveBet, 1000);
   subscribeNewBlocks();
-  watchWins();
+//  watchWins();
   watchBalance();
 }
 
@@ -56,7 +57,7 @@ function checkConnectivity() {
 }
 
 function subscribeNewBlocks() {
-    var subscription = web3jsEvents.eth.subscribe('newBlockHeaders', function(error, result){
+    subscriptionHeaders = web3jsEvents.eth.subscribe('newBlockHeaders', function(error, result){
       if (error) {
           console.error(error);
       }
@@ -70,8 +71,10 @@ function subscribeNewBlocks() {
     }
   });
 
-  //setInterval(printBlockNumber, 10000);
 }
+
+/* Event emitting is not currently reliably supported. For this reason last win value is stored
+   in contract.
 
 function watchWins() {
   //var event = web3jsEvents.claimWin({from: userAccount});
@@ -84,7 +87,7 @@ function watchWins() {
     }
 
   });
-}
+}*/
 
 function watchBalance() {
   //var event = web3jsEvents.claimWin({from: userAccount});
@@ -99,13 +102,20 @@ function watchBalance() {
 
 // Load correct game phase on reload
 function hasActiveBet() {
+  if(contractBalance == 0) {
+    // The contract is not ready, check again later
+    setTimeout(hasActiveBet, 1000);
+    return;
+  }
+  // The contract is reachable (balance is positive), now check if the user has an active bet
   lottery.methods.hasActiveBet().call(function (error, result) {
-      $("#initialError").hide();
-      if(result > 0) {
+        if(result > 0) {
+          console.log("User has an active bet");
         // Restore the moment the bet was made from the contract
         blockNumberAtBet = result;
         waitNextBlockState();
       } else {
+        console.log("User has No active bet");
         initialBettingState();
       }
     })
@@ -114,6 +124,9 @@ function hasActiveBet() {
 function updateBalance(newBalance) {
   contractBalance = newBalance / FINNEY_TO_WEI;
   $("#txContractBalance").text("Contract balance is: " + contractBalance + " finney");
+  if(newBalance > 0) {
+    $("#initialError").hide();
+  }
 }
 
 function hideWins() {
@@ -154,7 +167,27 @@ function offerClaimState() {
   $("#offerBetting").show();
 }
 
-function winAnnounceState(winNumber, winValue) {
+//function winAnnounceState(winNumber, winValue) {
+function winAnnounceState() {
+  var winNumber;
+  lottery.methods.getLastWinningNumber().call(function (error, result) {
+      if(error) {
+        alert("Problem reading winning number from contract.");
+      } else {
+        winNumber = result;
+        lottery.methods.getLastWinningValue().call(function (error, result) {
+          if(error) {
+            alert("Problem reading winning value from contract.");
+          }
+          else {
+            var winValue = result;
+            printWinningStats(winNumber, winValue);
+          }
+      });
+    }});
+}
+
+function printWinningStats(winNumber, winValue) {
   if(winValue > 0){
     $("#txWins").text("Congratulations! You have won " + winValue + " finney!")
   } else {

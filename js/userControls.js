@@ -252,6 +252,7 @@ function claimBet() {
   .send({ from: userAccount })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Bet is being claimed.");
+    console.log(receipt.events);
     // Transaction was accepted into the blockchain, let's redraw the UI
   })
   .on("error", function(error) {
