@@ -267,6 +267,7 @@ function forgetBet() {
   return lottery.methods.clearBets()
   .send({ from: userAccount })
   .on("receipt", function(receipt) {
-    offerBetting();
+    initialBettingState();
   });
+  $("#txLastAction").text("Bet is being erased.");
 }

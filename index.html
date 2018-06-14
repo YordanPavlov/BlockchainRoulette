@@ -345,26 +345,36 @@
       <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets</button>
     </div>
 
-    <div id="txContractBalance">
+    <div id="statusBlock">
+      <div class="statusLine">
+        <div class="statusTitle">
+          Contract balance:
+        </div>
+        <div id="txContractBalance"> </div>
+      </div>
+
+      <div class="statusLine">
+        <div class="statusTitle">
+          Game status:
+        </div>
+        <div id="txLastAction">
+        </div>
+      </div>
     </div>
 
-    <div id="txLastAction">
-    </div>
+      <div id="claimBetsButtons">
+        <button class="button" onclick="claimBet()">Claim bets</button>
+        <button class="button" onclick="forgetBet()">Forget bets</button>
+      </div>
 
-    <div id="claimBetsButtons">
-      <button class="button" onclick="claimBet()">Claim bets</button>
-      <button class="button" onclick="forgetBet()">Forget bets</button>
-    </div>
+      <div id="winsKnown">
+        <div id="txWins"> </div>
+        <div id="txWinsNumber"> </div>
+      </div>
 
-    <div id="winsKnown">
-      <div id="txWins"> </div>
-      <div id="txWinsNumber"> </div>
-    </div>
-
-    <div id="reloadBettingButton">
-      <button class="button" onclick="reloadBetting()">Bet again</button>
-    </div>
-
+      <div id="reloadBettingButton">
+        <button class="button" onclick="reloadBetting()">Bet again</button>
+      </div>
 
       <div id="howtoTitle">
         How to play the game
@@ -381,7 +391,7 @@
         </li>
         <li>
           <div class="howtoTextLine">
-            Blockchain games consiste of web frontend, which is the page you currently view and also an
+            Blockchain games consist of a web frontend, which is the page you currently view and also an
             Ethereum contract which you can think of as the 'backend'. The contract of this game is
             currently deployed on the "Ropsten" test network. On test networks, unlike the "mainnet" ether
             does not cost you real money and you can ask and receive it for free. The second step you need
@@ -401,8 +411,55 @@
         </li>
       </ol>
       <div class="howtoSubtitle">
-        Start the game
+        Gameplay
       </div>
+      <ol>
+        <li>
+          <div class="howtoTextLine">
+          The inital game status would be "Expecting your bet". When in this state you can click on the
+          betting board and little input fields would appear. The ether unit used throughout the game is
+          "Finney", that is 1/1000 of an Ether. Your minium bet is 1 Finney and your maximum bet is
+          1000 Finney.
+          </div>
+        </li>
+        <li>
+          <div class="howtoTextLine">
+          You can bet at maximum of 10 positions before submitting your bet. Once you are ready you should
+          click on "Preview bets". The system will list all your bets along with some calculations on what
+          your maximum profit is.
+          </div>
+        </li>
+        <li>
+          <div class="howtoTextLine">
+          When you make sure that the system has correctly previewed your bets you can click on "Send bets"
+          button. That action should pop-up an Metamask window which will request your authorization. You
+          authorize the Metamask plugin to send your request on the blockchain by clicking "Submit".
+          </div>
+        </li>
+        <li>
+          <div class="howtoTextLine">
+          The winning number becomes known after a while, you may have to wait up to a minute. Then the game
+          status would change to "Next block is mined. Winning number is now known."
+          </div>
+        </li>
+        <li>
+          <div class="howtoTextLine">
+          At this point you are presented with two options - see the winning number and claim your bet if any,
+          or erase your bet. Most probably you would want to see the winning number by clicking "Claim bets"
+          button.
+          </div>
+        </li>
+        <li>
+          <div class="howtoTextLine">
+          Another Metamask window will pop-up asking for your authorization again.
+          </div>
+        </li>
+        <li>
+          <div class="howtoTextLine">
+          Finnally a "Game outcome" field will appear which will summarize what the outcome is.
+          </div>
+         </li>
+      </ol>
 
   </body>
 </html>

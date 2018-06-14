@@ -129,6 +129,7 @@ html, body {
 
 #offerBetting {
 	display: none;
+	margin: 0px 0px 20px 0px
 }
 
 #sendBetsButton {
@@ -147,6 +148,23 @@ html, body {
 	display: none;
 }
 
+#statusBlock {
+	margin: 5px 0px 20px 0px;
+}
+
+.statusLine {
+	display: flex;
+  flex-direction: row;
+	flex-wrap: nowrap;
+	margin: 5px 0px 5px 0px;
+}
+
+.statusTitle {
+	text-align: left;
+	font-weight: bold;
+	margin: 0px 5px 0px 0px;
+}
+
 #howtoTitle {
 	margin: 50px 0px 20px 0px;
 	text-align: center;
@@ -160,7 +178,7 @@ html, body {
 }
 
 .howtoTextLine {
-	margin: 20px 50px 20px 10px;
+	margin: 10px 50px 10px 10px;
 	text-align: justify;
 	justify-content: center;
 }

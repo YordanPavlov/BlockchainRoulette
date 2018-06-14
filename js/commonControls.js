@@ -56,7 +56,10 @@ function checkConnectivity() {
     });
 }
 
-/*function subscribeNewBlocks() {
+/*
+Subscription does not work reliably yet, so we do not use it.
+
+function subscribeNewBlocks() {
     subscriptionHeaders = web3jsEvents.eth.subscribe('newBlockHeaders', function(error, result){
       if (error) {
           console.error(error);
@@ -139,7 +142,7 @@ function hasActiveBet() {
 
 function updateBalance(newBalance) {
   contractBalance = newBalance / FINNEY_TO_WEI;
-  $("#txContractBalance").text("Contract balance is: " + contractBalance + " finney");
+  $("#txContractBalance").text(contractBalance + " finney");
   if(newBalance > 0) {
     $("#initialError").hide();
   }
