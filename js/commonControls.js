@@ -34,7 +34,6 @@ function checkMetamaskAndStart() {
 
   setTimeout(checkConnectivity, 400);
   setTimeout(hasActiveBet, 1000);
-  subscribeNewBlocks();
 //  watchWins();
 //  watchBalance();
 }
@@ -75,17 +74,17 @@ function checkConnectivity() {
 
 }*/
 
-function subscribeNewBlocks() {
-
+function waitWinningBlock() {
   web3js.eth.getBlock("latest", function(error, result) {
     if(blockNumberAtBet > 0) {
       if(result.number > blockNumberAtBet + 1) {
-        blockNumberAtBet = 0;
-        offerClaimState();
+          blockNumberAtBet = 0;
+          offerClaimState();
+      } else {
+          setTimeout(waitWinningBlock, 5000);
       }
     }
   });
-  setTimeout(subscribeNewBlocks, 5000);
 }
 
 /* Event emitting is not currently reliably supported. For this reason last win value is stored
@@ -123,13 +122,14 @@ function hasActiveBet() {
     return;
   }
   // The contract is reachable (balance is positive), now check if the user has an active bet
-  lottery.methods.hasActiveBet().call(function (error, result) {
+  lottery.methods.hasActiveBet().call({ from: userAccount},function (error, result) {
     console.log(result);
         if(result > 0) {
           console.log("User has an active bet");
         // Restore the moment the bet was made from the contract
         blockNumberAtBet = parseInt(result);
         waitNextBlockState();
+        waitWinningBlock();
       } else {
         console.log("User has No active bet");
         initialBettingState();
@@ -171,6 +171,7 @@ function sendOrResetState() {
 
 function waitNextBlockState() {
   $("#offerBetting").hide();
+  $("#sendBetsButton").hide();
   $("#reloadBettingButton").hide();
   $("#txLastAction").text("Waiting for next block for bet to become claimable.")
 }
@@ -183,27 +184,20 @@ function offerClaimState() {
   $("#offerBetting").show();
 }
 
-//function winAnnounceState(winNumber, winValue) {
-function winAnnounceState() {
-  var winNumber;
-  lottery.methods.getLastWinningNumber().call(function (error, result) {
-      if(error) {
-        alert("Problem reading winning number from contract.");
-      } else {
-        winNumber = result;
-        lottery.methods.getLastWinningValue().call(function (error, result) {
-          if(error) {
-            alert("Problem reading winning value from contract.");
-          }
-          else {
-            var winValue = result;
-            printWinningStats(winNumber, winValue);
-          }
-      });
-    }});
+function claimDoneState() {
+  $("#claimBetsButtons").hide();
+  $("#reloadBettingButton").hide();
+  $("#txLastAction").text("Sending bet claim.");
 }
 
-function printWinningStats(winNumber, winValue) {
+//function winAnnounceState(winNumber, winValue) {
+function winAnnounceState(winObject) {
+  if(winObject.from != userAccount) {
+    console.error("Receipt for claim action contains event for another user!");
+    return;
+  }
+  var winNumber = parseInt(winObject.number);
+  var winValue = parseInt(winObject.value);
   if(winValue > 0){
     $("#txWins").text("Congratulations! You have won " + winValue + " finney!")
   } else {

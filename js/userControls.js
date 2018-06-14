@@ -232,33 +232,35 @@ function sendBets() {
     fixedSizeBetsPositions[i] = betsPositions[i];
     fixedSizeBetsValues[i] = betsValues[i];
   }
-  return lottery.methods.placeBets(fixedSizeBetsPositions, fixedSizeBetsValues, betsPositions.length)
+  lottery.methods.placeBets(fixedSizeBetsPositions, fixedSizeBetsValues, betsPositions.length)
   .send({ from: userAccount, value: web3.toWei(sumBets, 'finney') })
   .on("receipt", function(receipt) {
     web3.eth.getBlockNumber(function(error, result) {
       blockNumberAtBet = result;
+      waitWinningBlock();
     });
-    waitNextBlockState();
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
     $("#txLastAction").text(error.toString().substring(0, 200));
     console.error(error);
   });
+  waitNextBlockState();
 }
 
 function claimBet() {
-  return lottery.methods.claimBets()
+  lottery.methods.claimBets()
   .send({ from: userAccount })
   .on("receipt", function(receipt) {
     $("#txLastAction").text("Bet is being claimed.");
-    console.log(receipt.events);
+    winAnnounceState(receipt.events.claimWin.returnValues);
     // Transaction was accepted into the blockchain, let's redraw the UI
   })
   .on("error", function(error) {
     // Do something to alert the user their transaction has failed
     $("#txLastAction").text(error.toString().substring(0, 200));
   });
+  claimDoneState();
 }
 
 function forgetBet() {

@@ -39,8 +39,7 @@ contract Lottery {
                     uint16[MAX_BETTING_AT_ONCE] values,
                     uint8 length) public payable {
       require(0 == betsPerUser[msg.sender].placementTime);
-      require(positions.length == values.length);
-      require(positions.length <= MAX_BETTING_AT_ONCE);
+      require(length <= MAX_BETTING_AT_ONCE);
 
       uint16 sumValues = 0;
       for(uint8 index = 0; index < length; ++index) {
