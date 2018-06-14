@@ -146,3 +146,21 @@ html, body {
 #reloadBBettingButton {
 	display: none;
 }
+
+#howtoTitle {
+	margin: 50px 0px 20px 0px;
+	text-align: center;
+	text-decoration: underline;
+}
+
+.howtoSubtitle {
+	margin: 20px 0px 20px 20px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.howtoTextLine {
+	margin: 20px 50px 20px 10px;
+	text-align: justify;
+	justify-content: center;
+}
