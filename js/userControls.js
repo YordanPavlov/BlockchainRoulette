@@ -153,7 +153,7 @@ function calculateBets() {
 
       var curBet;
       if(index <= 36) {
-          curBet = "Bet " + inputBox.value + " on number " + index + "\n";
+          curBet = "Bet " + inputBox.value + " Finney on number " + index + "\n";
       } else if (FIRST_COLLUMN == index) {
           curBet = "Bet " + inputBox.value + " on first collumn \n";
       } else if (SECOND_COLLUMN == index) {

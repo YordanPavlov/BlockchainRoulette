@@ -144,7 +144,15 @@ html, body {
 	display: none;
 }
 
-#reloadBBettingButton {
+#reloadBettingButton {
+	display: none;
+}
+
+.helpButtons {
+	margin: 15px 0px 20px 0px;
+}
+
+#showHelpButton {
 	display: none;
 }
 
@@ -165,8 +173,11 @@ html, body {
 	margin: 0px 5px 0px 0px;
 }
 
+.helpSection {
+	margin: 30px 0px 20px 0px;
+}
+
 #howtoTitle {
-	margin: 50px 0px 20px 0px;
 	text-align: center;
 	text-decoration: underline;
 }

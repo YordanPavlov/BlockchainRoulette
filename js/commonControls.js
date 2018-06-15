@@ -168,12 +168,12 @@ function initialBettingState() {
 
 function sendOrResetState() {
     $("#sendBetsButton").show();
-    $("#reloadBettingButton").show();
     $("#txLastAction").text("Send your bets or start over.")
 }
 
 function waitNextBlockState() {
   $("#offerBetting").hide();
+  $("#placeBetsButton").hide();
   $("#sendBetsButton").hide();
   $("#reloadBettingButton").hide();
   $("#txLastAction").text("Waiting for next block for bet to become claimable.")
@@ -252,4 +252,17 @@ function removeLastCreatedInputIfEmpty() {
 
 function removeAllClickable() {
   document.getElementById('offerBetting').removeAttribute("onclick");
+}
+
+function showHelp() {
+  $("#helpSection").show();
+  $("#showHelpButton").hide();
+  $("#hideHelpButton").show();
+}
+
+function hideHelp() {
+  console.log("hide help");
+  $("#helpSection").hide();
+  $("#showHelpButton").show();
+  $("#hideHelpButton").hide();
 }
