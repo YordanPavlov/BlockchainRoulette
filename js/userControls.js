@@ -1,4 +1,5 @@
 const MAX_BETTING_AT_ONCE = 10;
+const MAX_BETTING_VALUE = 1000;
 var betsPositions = [];
 var betsValues = [];
 var sumBets = 0;
@@ -184,14 +185,22 @@ function calculateBets() {
     }
   }
 
+  var sumValues = 0;
+  for(var indexValues = 0; indexValues < betsValues.length; ++indexValues) {
+    sumValues += betsValues[indexValues];
+  }
+
   if(betsPositions.length > MAX_BETTING_AT_ONCE) {
     $("#listBets").text("The number of bets exceeds the current maximum number of " + MAX_BETTING_AT_ONCE);
     return;
-  } else if(betsPositions.length == 0) {
+  } else if (sumValues > MAX_BETTING_VALUE ) {
+    $("#listBets").text("The sum of your betting value exceeds the current maximum " + MAX_BETTING_VALUE);
+    return;
+  }else if(betsPositions.length == 0) {
     $("#listBets").text("No bets are made");
     return;
   } else {
-    accumulatedBets += "\n Totalling: " + sumBets + " Finney";
+    accumulatedBets += "Totalling: " + sumBets + " Finney";
     var div = document.getElementById('listBets');
     div.innerText = accumulatedBets;
   }
@@ -261,13 +270,4 @@ function claimBet() {
     $("#txLastAction").text(error.toString().substring(0, 200));
   });
   claimDoneState();
-}
-
-function forgetBet() {
-  return lottery.methods.clearBets()
-  .send({ from: userAccount })
-  .on("receipt", function(receipt) {
-    initialBettingState();
-  });
-  $("#txLastAction").text("Bet is being erased.");
 }

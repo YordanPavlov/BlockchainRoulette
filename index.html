@@ -333,26 +333,9 @@
           </div>
         </div>
       </div>
-
-      <button id="placeBetsButton" class="button" onclick="calculateBets()">Place bets</button>
-
-      <div id="listBets">
-      </div>
-
-      <div id="maxProfit">
-      </div>
-
-      <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets</button>
     </div>
 
     <div id="statusBlock">
-      <div class="statusLine">
-        <div class="statusTitle">
-          Contract balance:
-        </div>
-        <div id="txContractBalance"> </div>
-      </div>
-
       <div class="statusLine">
         <div class="statusTitle">
           Game status:
@@ -360,11 +343,26 @@
         <div id="txLastAction">
         </div>
       </div>
+      <div class="statusLine">
+        <div class="statusTitle">
+          Contract balance:
+        </div>
+        <div id="txContractBalance"> </div>
+      </div>
     </div>
+
+    <button id="placeBetsButton" class="button" onclick="calculateBets()">Place bets</button>
+
+    <div id="listBets">
+    </div>
+
+    <div id="maxProfit">
+    </div>
+
+    <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets</button>
 
       <div id="claimBetsButtons">
         <button class="button" onclick="claimBet()">Claim bets</button>
-        <button class="button" onclick="forgetBet()">Forget bets</button>
       </div>
 
       <div id="winsKnown">
@@ -436,7 +434,7 @@
           <li>
             <div class="howtoTextLine">
             You can bet at maximum of 10 positions before submitting your bet. Once you are ready you should
-            click on "Preview bets". The system will list all your bets along with some calculations on what
+            click on "Place bets". The system will list all your bets along with some calculations on what
             your maximum profit is.
             </div>
           </li>
@@ -449,15 +447,14 @@
           </li>
           <li>
             <div class="howtoTextLine">
-            The winning number becomes known after a while, you may have to wait up to a minute. Then the game
-            status would change to "Next block is mined. Winning number is now known."
+            Once your bet is sent on the blockchain, you will have to wait for the next block to get mined.
+            The game state will be "Waiting for next block. Please wait...". You may have to wait up to a minute.
             </div>
           </li>
           <li>
             <div class="howtoTextLine">
-            At this point you are presented with two options - see the winning number and claim your bet if any,
-            or erase your bet. Most probably you would want to see the winning number by clicking "Claim bets"
-            button.
+            The random hash number of the next block will determine what the winning number is. Once it is known
+            you will have the option to claim your bet.
             </div>
           </li>
           <li>

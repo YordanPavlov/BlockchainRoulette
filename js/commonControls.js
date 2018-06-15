@@ -163,7 +163,11 @@ function initialBettingState() {
   hideWins();
   $("#txLastAction").text("Expecting your bet.")
   $("#offerBetting").show();
+  $("#reloadBettingButton").hide();
   attachClickable();
+  $("#listBets").text("");
+  $("#maxProfit").text("");
+  $("#placeBetsButton").show();
 }
 
 function sendOrResetState() {
@@ -176,7 +180,7 @@ function waitNextBlockState() {
   $("#placeBetsButton").hide();
   $("#sendBetsButton").hide();
   $("#reloadBettingButton").hide();
-  $("#txLastAction").text("Waiting for next block for bet to become claimable.")
+  $("#txLastAction").text("Waiting for next block. Please wait...")
 }
 
 function offerClaimState() {
@@ -184,13 +188,12 @@ function offerClaimState() {
   $("#claimBetsButtons").show();
   $("#reloadBettingButton").hide();
   $("#txLastAction").text("Next block is mined. Winning number is now known.");
-  $("#offerBetting").show();
 }
 
 function claimDoneState() {
   $("#claimBetsButtons").hide();
   $("#reloadBettingButton").hide();
-  $("#txLastAction").text("Sending bet claim.");
+  $("#txLastAction").text("Sending bet claim. Please wait...");
 }
 
 //function winAnnounceState(winNumber, winValue) {
@@ -206,11 +209,14 @@ function winAnnounceState(winObject) {
   } else {
     $("#txWins").text("No win on your last bet.")
   }
+  $("#txLastAction").text("Game is over. Result is announced.")
   $("#txWinsNumber").show();
   $("#txWinsNumber").text("Winning number chosen was: " + winNumber);
   $("#winsKnown").show();
   $("#reloadBettingButton").show();
   $("#claimBetsButtons").hide();
+  $("#offerBetting").show();
+  $("#maxProfit").hide();
 }
 
 function notPayableState() {
@@ -261,7 +267,6 @@ function showHelp() {
 }
 
 function hideHelp() {
-  console.log("hide help");
   $("#helpSection").hide();
   $("#showHelpButton").show();
   $("#hideHelpButton").hide();

@@ -14,6 +14,7 @@ contract Lottery {
   mapping (address => BetsUser) betsPerUser;
   uint8 constant NUM_BETTING_POSITIONS = 49;
   uint8 constant MAX_BETTING_AT_ONCE = 10;
+  uint8 constant MAX_BETTING_VALUE_AT_ONCE = 1000;
   uint16 constant MAX_BET_FINNEY = 999;
   uint constant FINNEY_TO_WEI = 1000000000000000;
 
@@ -49,6 +50,7 @@ contract Lottery {
       }
       // Make sure that the sum of the bets equals what has been paid to the method
       require(msg.value == FINNEY_TO_WEI * sumValues);
+      require(sumValues <= MAX_BETTING_VALUE_AT_ONCE);
 
       betsPerUser[msg.sender].positions = positions;
       betsPerUser[msg.sender].values = values;

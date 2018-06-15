@@ -125,11 +125,16 @@ html, body {
 	width: 100px;
 	margin: auto 10px;
 	display: inline-block;
+	margin: 10px 0px 0px 0px;
+}
+
+#listBets {
+	margin: 10px 0px 0px 0px;
 }
 
 #offerBetting {
 	display: none;
-	margin: 0px 0px 20px 0px
+	margin: 0px 0px 20px 0px;
 }
 
 #sendBetsButton {
