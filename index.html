@@ -335,35 +335,37 @@
       </div>
     </div>
 
-    <div id="statusBlock">
-      <div class="statusLine">
-        <div class="statusTitle">
-          Game status:
+    <div class="containerBlock">
+      <div id="statusBlock">
+        <div class="statusLine">
+          <div class="statusTitle">
+            Game status:
+          </div>
+          <div id="txLastAction">
+          </div>
         </div>
-        <div id="txLastAction">
+        <div class="statusLine">
+          <div class="statusTitle">
+            Contract balance:
+          </div>
+          <div id="txContractBalance"> </div>
         </div>
       </div>
-      <div class="statusLine">
-        <div class="statusTitle">
-          Contract balance:
-        </div>
-        <div id="txContractBalance"> </div>
+
+      <button id="placeBetsButton" class="button" onclick="calculateBets()">Place bets</button>
+
+      <div id="listBets">
       </div>
-    </div>
 
-    <button id="placeBetsButton" class="button" onclick="calculateBets()">Place bets</button>
+      <div id="maxProfit">
+      </div>
 
-    <div id="listBets">
-    </div>
 
-    <div id="maxProfit">
-    </div>
-
-    <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets</button>
+      <button id="sendBetsButton" class="button" onclick="sendBets()">Send bets </button>
 
       <div id="claimBetsButtons">
-        <button class="button" onclick="claimBet()">Claim bets</button>
-      </div>
+          <button class="button" onclick="claimBet()">Claim bets</button>
+        </div>
 
       <div id="winsKnown">
         <div id="txWins"> </div>
@@ -383,8 +385,9 @@
           <button class="button" onclick="hideHelp()">Hide help</button>
         </div>
       </div>
+    </div>
 
-      <div id="helpSection">
+    <div id="helpSection">
         <div id="howtoTitle">
           How to play the game
         </div>

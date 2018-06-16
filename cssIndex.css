@@ -12,6 +12,7 @@
 
 html, body {
     width: 100%;
+		margin: 0;
 }
 
 .rouletteWholeTable {
@@ -29,6 +30,10 @@ html, body {
 	flex-wrap: nowrap;
 }
 
+.containerBlock {
+	margin-left: 20px;
+}
+
 .rouletteVertical {
 	width:75px;
 	max-width:75px;
@@ -41,20 +46,15 @@ html, body {
 }
 
 .lowerGroupsContainer {
-	padding-left: 75px;
-	padding-right: 75px;
+	padding-left: 74px;
 }
 
 .rouletteVerticalGroup {
 	width: 300px;
 	max-width: 300px;
-	height: 150px;
 	display: flex;
   flex-direction: column;
 	flex-wrap: nowrap;
-	border-style: solid;
-	border-width: 1px;
-	border-color: gray;
 }
 
 .rouletteNumber {
@@ -79,10 +79,6 @@ html, body {
 }
 
 .rouletteQuadBox {
-   width: 300px;
-   max-width: 300px;
-	 height: 75px;
-	 max-height: 75px;
    display: flex;
 	 justify-content: center;
 	 border-style: solid;
@@ -99,9 +95,8 @@ html, body {
    max-width:45px;
 	 height: 25px;
 	 max-height: 25px;
-   display: inline-block;
-	 text-align: center;
-	 margin: 10px 0px 0px 15px;
+   display: block;
+	 margin: 10px auto;
 }
 
 .rouletteRed {
@@ -134,7 +129,7 @@ html, body {
 
 #offerBetting {
 	display: none;
-	margin: 0px 0px 20px 0px;
+	margin: 20px;
 }
 
 #sendBetsButton {

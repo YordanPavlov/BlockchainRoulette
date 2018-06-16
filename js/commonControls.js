@@ -2,7 +2,6 @@ var lottery;
 var userAccount;
 var contractBalance = 0;
 var offerBettingOriginal;
-var lastCreatedInput;
 
 const FINNEY_TO_WEI = 1000000000000000;
 
@@ -34,6 +33,8 @@ function checkMetamaskAndStart() {
 
   setTimeout(checkConnectivity, 400);
   setTimeout(hasActiveBet, 1000);
+  // The balance update can be implemented with events but they do not work reliably as of now
+  setInterval(checkBalance, 5000);
 //  watchWins();
 //  watchBalance();
 }
@@ -43,10 +44,11 @@ function checkConnectivity() {
     .then(() => console.log('Connected Metamask'))
     .catch(e => console.log('Wow. Something went wrong. Metamask'));
 
-/*  web3jsEvents.eth.net.isListening()
-    .then(() => console.log('Connected Events provider'))
-    .catch(e => console.log('Wow. Something went wrong. Events provider'));
-*/
+    // We check the balance to make sure we can connect to the contract
+    checkBalance();
+}
+
+function checkBalance() {
   lottery.methods.checkBalance().call(function (error, result) {
       if(error || 0 == result) {
         alert("Problem connecting to contract or contract not ready.");
@@ -216,6 +218,7 @@ function winAnnounceState(winObject) {
   $("#reloadBettingButton").show();
   $("#claimBetsButtons").hide();
   $("#offerBetting").show();
+  removeAllClickable();
   $("#maxProfit").hide();
 }
 
@@ -230,7 +233,7 @@ function attachClickable() {
       // We have already inserted input element
       return;
     }
-    removeLastCreatedInputIfEmpty();
+    removeEmptyInputs();
     var inputId = $(this).attr("id") + 'Input';
     var input = $('<input />', {
         'type': 'text',
@@ -242,17 +245,18 @@ function attachClickable() {
     //$(this).replaceWith(input);
     $(this).append(input);
     $('#' + inputId).focus();
-    lastCreatedInput = inputId;
-
-    //console.log("Generate input with id " + inputId);
   })
 }
 
-function removeLastCreatedInputIfEmpty() {
-  var inputBox = document.getElementById(lastCreatedInput);
+function removeEmptyInputs() {
+  var accumulatedBets = "";
+  for(var index = 0; index <= 48; ++index) {
+    var curNumber = PREFIX + index + SUFFIX;
+    var inputBox = document.getElementById(curNumber);
 
-  if(inputBox && inputBox.value == 0) {
-    $('#' + lastCreatedInput).remove();
+    if(inputBox && inputBox.value == 0) {
+      $('#' + curNumber).remove();
+    }
   }
 }
 

@@ -20,6 +20,9 @@ const EVENS = 46;
 const REDS = 47;
 const BLACKS = 48;
 
+var PREFIX = "num";
+var SUFFIX = "Input";
+
 function iterateThirdWithStep(step, betValue) {
   for(var j=0; j<12; ++j) {
     maxProfitPerNumber[3*j + step] += 3 * betValue;
@@ -136,15 +139,13 @@ function verifyBetsArePayable() {
 }
 
 function calculateBets() {
-  var prefix = "num";
-  var suffix = "Input";
   betsPositions = [];
   betsValues = [];
   sumBets = 0;
 
   var accumulatedBets = "";
   for(var index = 0; index <= 48; ++index) {
-    var curNumber = prefix + index + suffix;
+    var curNumber = PREFIX + index + SUFFIX;
     var inputBox = document.getElementById(curNumber);
 
     if(inputBox && inputBox.value > 0) {
