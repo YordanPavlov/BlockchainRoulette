@@ -19,7 +19,7 @@ function checkMetamaskAndStart() {
     return;
   }
 
-  var lotteryAddress = "0x196943fc4a60ad99288053020a459fd3fa811c1c";
+  var lotteryAddress = "0x2E86cd048BDFb15dBE96b21ACd8231Ed14ED14B6";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
   //lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
