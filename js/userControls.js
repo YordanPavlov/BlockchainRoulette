@@ -1,5 +1,6 @@
 const MAX_BETTING_AT_ONCE = 10;
-const MAX_BETTING_VALUE = 1000;
+const MAX_BETTING_VALUE_POSITION = 1000;
+const MAX_BETTING_VALUE_SUM = 5000;
 var betsPositions = [];
 var betsValues = [];
 var sumBets = 0;
@@ -188,14 +189,18 @@ function calculateBets() {
 
   var sumValues = 0;
   for(var indexValues = 0; indexValues < betsValues.length; ++indexValues) {
+    if(betsValues[indexValues] > MAX_BETTING_VALUE_POSITION) {
+      $("#listBets").text("The bet value of " + betsValues[indexValues] + " exceeds the current maximum of " + MAX_BETTING_VALUE_POSITION);
+      return;
+    }
     sumValues += betsValues[indexValues];
   }
 
   if(betsPositions.length > MAX_BETTING_AT_ONCE) {
     $("#listBets").text("The number of bets exceeds the current maximum number of " + MAX_BETTING_AT_ONCE);
     return;
-  } else if (sumValues > MAX_BETTING_VALUE ) {
-    $("#listBets").text("The sum of your betting value exceeds the current maximum " + MAX_BETTING_VALUE);
+  } else if (sumValues > MAX_BETTING_VALUE_SUM ) {
+    $("#listBets").text("The sum of your betting value exceeds the current maximum " + MAX_BETTING_VALUE_SUM);
     return;
   }else if(betsPositions.length == 0) {
     $("#listBets").text("No bets are made");

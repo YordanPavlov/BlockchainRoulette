@@ -261,7 +261,7 @@ function removeEmptyInputs() {
 }
 
 function removeAllClickable() {
-  document.getElementById('offerBetting').removeAttribute("onclick");
+  $("#offerBetting").off('click');
 }
 
 function showHelp() {
