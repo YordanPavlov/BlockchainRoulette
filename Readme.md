@@ -23,6 +23,10 @@ The contract can be used by multiple players at once. However the calculation if
 payable by the contract is done in the web3 frontend. This is vulnerable to a race condition between
 multiple players.
 
+## How to play
+
+You can access the game through the web frontend at:
+https://yordanpavlov.github.io/BlockchainRoulette/
 
 ## Disclaimer
 
