@@ -22,6 +22,10 @@ contract Lottery {
   // Each player should claim his bet before playing again.
   mapping (address => BetsUser) betsPerUser;
 
+  uint8 constant MAX_CREDITORS = 10;
+  address[MAX_CREDITORS] creditorsList;
+  uint[MAX_CREDITORS] creditorsPPM;
+
   // Various constants listed below
   uint8 constant NUM_BETTING_POSITIONS = 49;
   uint8 constant MAX_BETTING_AT_ONCE = 10;
@@ -43,9 +47,66 @@ contract Lottery {
   uint8 constant REDS = 47;
   uint8 constant BLACKS = 48;
 
+  modifier onlyByOwner()
+  {
+      require(msg.sender == owner);
+      _;
+  }
 
   constructor() public {
     owner = msg.sender;
+  }
+
+  function addCreditor(address newCreditor) public onlyByOwner {
+    for(uint8 index = 0; index < MAX_CREDITORS; ++index) {
+      if(0 == creditorsList[index]) {
+        creditorsList[index] = newCreditor;
+        break;
+      }
+    }
+  }
+
+  function removeCreditor(address existingCreditor) public onlyByOwner {
+    for(uint8 index = 0; index < MAX_CREDITORS; ++index) {
+      if(existingCreditor == creditorsList[index]) {
+        creditorsList[index] = 0;
+        break;
+      }
+    }
+  }
+
+
+  function depositAction(int sumFinney) public payable {
+    // If this is a deposit
+    if(sumFinney > 0)
+    {
+      require(msg.value == FINNEY_TO_WEI * uint(sumFinney));
+    }
+
+    uint[MAX_CREDITORS] memory currentCreditorsValue;
+
+    uint balance = address(this).balance;
+    for(uint8 index = 0; index < MAX_CREDITORS; ++index ) {
+      // TODO replace with safemath
+      currentCreditorsValue[index] = creditorsPPM[index] * balance / 1000000;
+      if(msg.sender == creditorsList[index]) {
+        // If this is a withdraw
+        if(sumFinney < 0) {
+            uint sumFinneyPositive = uint(-sumFinney);
+            // If the withdraw request can not be met, reduce to maximum
+            if(currentCreditorsValue[index] < sumFinneyPositive) {
+              sumFinneyPositive = currentCreditorsValue[index];
+            }
+            currentCreditorsValue[index] -= sumFinneyPositive;
+        }
+        else
+        {
+            currentCreditorsValue[index] += uint(sumFinney);
+        }
+      }
+    }
+
+    emit balanceUpdated(address(this).balance);
   }
 
   // First step of the uesr interaction with the contract. Placing a bet is done here.
@@ -94,42 +155,43 @@ contract Lottery {
      * "You can only access the hashes of the most recent 256 blocks, all other values will be zero."
      */
     uint blockHashRandomness = uint(blockhash(placementTime + 2));
-    require(blockHashRandomness > 0);
-
-    uint8 chosenNumber = uint8( blockHashRandomness % 37);
-
     uint profitFinney = 0;
-    for(uint8 index = 0; index < betsPerUser[msg.sender].betsLength; ++index) {
-      uint8 curBetPosition = betsPerUser[msg.sender].positions[index];
-      uint16 curBetValue = betsPerUser[msg.sender].values[index];
-      if(curBetPosition <= 36) {
-        if(curBetPosition == chosenNumber) {
-          // Win on exact number
-          profitFinney += 36 * curBetValue;
-        }
-      } else {
-        // The current bet is not a number, check group bets
-        if (( FIRST_COLLUMN == curBetPosition && 1 == (chosenNumber % 3)) ||
-            ( SECOND_COLLUMN == curBetPosition && 2 == (chosenNumber % 3)) ||
-            ( THIRD_COLLUMN == curBetPosition && 0 == (chosenNumber % 3)) ||
-            ( FIRST_THIRD == curBetPosition && (chosenNumber >= 1 && chosenNumber <= 12)) ||
-            ( MIDDLE_THIRD == curBetPosition && (chosenNumber >= 13 && chosenNumber <= 24)) ||
-            ( LAST_THIRD == curBetPosition && (chosenNumber >= 25 && chosenNumber <= 36)))
-        {
-            profitFinney += 3 * curBetValue;
-        }
-        else if (( FIRST_HALF == curBetPosition && (chosenNumber >= 0 && chosenNumber <= 18)) ||
-                 ( SECOND_HALF == curBetPosition && (chosenNumber >= 19 && chosenNumber <= 36)) ||
-                 ( ODDS == curBetPosition && (chosenNumber % 2 == 1 )) ||
-                 ( EVENS == curBetPosition && (chosenNumber % 2 == 0 )) ||
-                 ( REDS == curBetPosition && isNumRed(chosenNumber)) ||
-                 ( BLACKS == curBetPosition && isNumBlack(chosenNumber)))
-        {
-            profitFinney += 2 * curBetValue;
+
+    // In case the block hash is not visible the user will not be able to claim
+    if(blockHashRandomness > 0) {
+
+      uint8 chosenNumber = uint8( blockHashRandomness % 37);
+
+      for(uint8 index = 0; index < betsPerUser[msg.sender].betsLength; ++index) {
+        uint8 curBetPosition = betsPerUser[msg.sender].positions[index];
+        uint16 curBetValue = betsPerUser[msg.sender].values[index];
+        if(curBetPosition <= 36) {
+          if(curBetPosition == chosenNumber) {
+            // Win on exact number
+            profitFinney += 36 * curBetValue;
+          }
+        } else {
+          // The current bet is not a number, check group bets
+          if (( FIRST_COLLUMN == curBetPosition && 1 == (chosenNumber % 3)) ||
+              ( SECOND_COLLUMN == curBetPosition && 2 == (chosenNumber % 3)) ||
+              ( THIRD_COLLUMN == curBetPosition && 0 == (chosenNumber % 3)) ||
+              ( FIRST_THIRD == curBetPosition && (chosenNumber >= 1 && chosenNumber <= 12)) ||
+              ( MIDDLE_THIRD == curBetPosition && (chosenNumber >= 13 && chosenNumber <= 24)) ||
+              ( LAST_THIRD == curBetPosition && (chosenNumber >= 25 && chosenNumber <= 36)))
+          {
+              profitFinney += 3 * curBetValue;
+          }
+          else if (( FIRST_HALF == curBetPosition && (chosenNumber >= 0 && chosenNumber <= 18)) ||
+                   ( SECOND_HALF == curBetPosition && (chosenNumber >= 19 && chosenNumber <= 36)) ||
+                   ( ODDS == curBetPosition && (chosenNumber % 2 == 1 )) ||
+                   ( EVENS == curBetPosition && (chosenNumber % 2 == 0 )) ||
+                   ( REDS == curBetPosition && isNumRed(chosenNumber)) ||
+                   ( BLACKS == curBetPosition && isNumBlack(chosenNumber)))
+          {
+              profitFinney += 2 * curBetValue;
+          }
         }
       }
-
-
     }
     if(profitFinney > 0) {
       msg.sender.transfer(profitFinney * FINNEY_TO_WEI);
@@ -140,13 +202,19 @@ contract Lottery {
     emit balanceUpdated(address(this).balance);
   }
 
+  function getCreditorsList() public view returns(address[MAX_CREDITORS])
+  {
+    return creditorsList;
+  }
+
+  function getCreditorsPPM() public view returns(uint[MAX_CREDITORS])
+  {
+    return creditorsPPM;
+  }
+
   // Events currently not used in the frontend due to limitations of the web3 provider
   event claimWin(address from, uint8 number, uint value);
   event balanceUpdated(uint newBalance);
-
-  function deposit() public payable {
-    emit balanceUpdated(address(this).balance);
-  }
 
   function checkBalance() public view returns (uint) {
     return address(this).balance;
