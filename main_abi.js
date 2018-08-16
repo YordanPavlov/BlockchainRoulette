@@ -40,6 +40,62 @@ var lotteryABI = [
       "type": "event"
     },
     {
+      "constant": true,
+      "inputs": [],
+      "name": "getOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newCreditor",
+          "type": "address"
+        }
+      ],
+      "name": "addCreditor",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "existingCreditor",
+          "type": "address"
+        }
+      ],
+      "name": "removeCreditor",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "sumFinney",
+          "type": "int256"
+        }
+      ],
+      "name": "depositAction",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
       "constant": false,
       "inputs": [
         {
@@ -94,12 +150,31 @@ var lotteryABI = [
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [],
-      "name": "deposit",
-      "outputs": [],
-      "payable": true,
-      "stateMutability": "payable",
+      "name": "getCreditorsList",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[10]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getCreditorsPPM",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256[10]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     },
     {

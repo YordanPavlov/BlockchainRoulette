@@ -57,6 +57,10 @@ contract Lottery {
     owner = msg.sender;
   }
 
+  function getOwner() public view returns(address){
+    return owner;
+  }
+
   function addCreditor(address newCreditor) public onlyByOwner {
     for(uint8 index = 0; index < MAX_CREDITORS; ++index) {
       if(0 == creditorsList[index]) {
@@ -85,10 +89,21 @@ contract Lottery {
 
     uint[MAX_CREDITORS] memory currentCreditorsValue;
 
-    uint balance = address(this).balance;
+    uint balanceAfter = address(this).balance / FINNEY_TO_WEI;
+    uint balanceBefore = balanceAfter;
+
+    if(sumFinney > 0) {
+      balanceBefore -= uint(sumFinney);
+    } else {
+      balanceBefore += uint(-sumFinney);
+    }
+
     for(uint8 index = 0; index < MAX_CREDITORS; ++index ) {
       // TODO replace with safemath
-      currentCreditorsValue[index] = creditorsPPM[index] * balance / 1000000;
+      if(0 == creditorsList[index]) {
+        continue;
+      }
+      currentCreditorsValue[index] = creditorsPPM[index] * balanceBefore / 1000000;
       if(msg.sender == creditorsList[index]) {
         // If this is a withdraw
         if(sumFinney < 0) {
@@ -103,6 +118,22 @@ contract Lottery {
         {
             currentCreditorsValue[index] += uint(sumFinney);
         }
+      }
+    }
+
+    for(index = 0; index < MAX_CREDITORS; ++index ) {
+      // TODO replace with safemath
+      if(0 == creditorsList[index]) {
+        continue;
+      }
+
+      if(balanceAfter > 0)
+      {
+          creditorsPPM[index] = currentCreditorsValue[index] / balanceAfter * 1000000;
+      }
+      else
+      {
+          creditorsPPM[index] = 0;
       }
     }
 

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Blockchain Roulette</title>
+    <link rel="stylesheet" type="text/css" href="cssDeposits.css" />
+    <script language="javascript" type="text/javascript" src="jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.js"></script>
+    <script language="javascript" type="text/javascript" src="main_abi.js"></script>
+
+    <script language="javascript" type="text/javascript" src="js/depositControls.js"></script>
+
+  </head>
+
+  <body onload="checkMetamaskAndStartDeposit()">
+
+    <div id="initialError">
+      Problem loading contract. Check your Metamask account.
+    </div>
+    <div id="userAddress">
+    </div>
+    <div id="userStatus">
+    </div>
+    <div id="contractBalance">
+    </div>
+
+    <div id="ownerControls">
+      Add new creditor:
+      <input type="text" id="newCreditorId">
+      <button id="addNewCreditorButton" class="button" onclick="addNewCreditor()">Send</button>
+
+      <br>
+    </div>
+
+    <div id="deposits">
+    </div>
+
+    <div id="creditorControls">
+      Deposit sum (value in finney):
+      <input type="text" id="depositFinneyId">
+      <button id="depositButton" class="button" onclick="deposit()">Deposit</button>
+
+      <br>
+
+      Withdraw sum (value in finney):
+      <input type="text" id="withdrawFinneyId">
+      <button id="withdrawButton" class="button" onclick="withdraw()">Withdraw</button>
+
+      <br>
+    </div>
+
+
+  </body>
+</html>
