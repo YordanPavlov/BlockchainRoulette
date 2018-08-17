@@ -12,43 +12,86 @@
 
   </head>
 
-  <body onload="checkMetamaskAndStartDeposit()">
+  <body onload="checkMetamaskAndStartAll()">
 
+<div id="statusField">
     <div id="initialError">
       Problem loading contract. Check your Metamask account.
     </div>
-    <div id="userAddress">
-    </div>
-    <div id="userStatus">
-    </div>
-    <div id="contractBalance">
+
+    <div class="oneLineContainer">
+      <div class="leftTitle">
+        Your ethereum address is:
+      </div>
+      <div id="userAddress"> </div>
     </div>
 
-    <div id="ownerControls">
-      Add new creditor:
-      <input type="text" id="newCreditorId">
-      <button id="addNewCreditorButton" class="button" onclick="addNewCreditor()">Send</button>
-
-      <br>
+    <div class="oneLineContainer">
+      <div class="leftTitle">
+        Contract balance is:
+      </div>
+      <div id="contractBalance"> </div>
     </div>
 
-    <div id="deposits">
+    <div class="oneLineContainer">
+      <div class="leftTitle">
+        Your status is:
+      </div>
+      <div id="userStatus">
+        Not a creditor.
+      </div>
+    </div>
+</div>
+
+<div id="depositsField">
+  <div class="oneLineContainerEmbeded">
+    <div class="tableFirstRow">
+      Creditor
+    </div>
+    <div class="tableSecondRow">
+      Value
+    </div>
+    <div class="tableThirdRow">
+      Value
+    </div>
+  </div>
+  <div id="depositDataField">
+  </div>
+</div>
+
+  <div id="controlField">
+    <div id="ownerControls" class="oneLineContainer">
+      <div class="leftTitle">
+        Add new creditor:
+      </div>
+      <div>
+        <input type="text" id="newCreditorId">
+        <button id="addNewCreditorButton" class="button" onclick="addNewCreditor()">Send</button>
+      </div>
     </div>
 
     <div id="creditorControls">
-      Deposit sum (value in finney):
-      <input type="text" id="depositFinneyId">
-      <button id="depositButton" class="button" onclick="deposit()">Deposit</button>
+      <div class="oneLineContainer">
+        <div class="leftTitle">
+          Deposit sum (value in finney):
+        </div>
+        <div>
+          <input type="text" id="depositFinneyId">
+          <button id="depositButton" class="button" onclick="deposit()">Deposit</button>
+        </div>
+      </div>
 
-      <br>
-
-      Withdraw sum (value in finney):
-      <input type="text" id="withdrawFinneyId">
-      <button id="withdrawButton" class="button" onclick="withdraw()">Withdraw</button>
-
-      <br>
+      <div class="oneLineContainer">
+        <div class="leftTitle">
+          Withdraw sum (value in finney):
+        </div>
+        <div>
+          <input type="text" id="withdrawFinneyId">
+          <button id="withdrawButton" class="button" onclick="withdraw()">Withdraw</button>
+        </div>
+      </div>
     </div>
 
-
+  </div>
   </body>
 </html>

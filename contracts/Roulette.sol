@@ -113,6 +113,7 @@ contract Lottery {
               sumFinneyPositive = currentCreditorsValue[index];
             }
             currentCreditorsValue[index] -= sumFinneyPositive;
+            msg.sender.transfer(sumFinneyPositive * FINNEY_TO_WEI);
         }
         else
         {
@@ -129,7 +130,7 @@ contract Lottery {
 
       if(balanceAfter > 0)
       {
-          creditorsPPM[index] = currentCreditorsValue[index] / balanceAfter * 1000000;
+          creditorsPPM[index] = currentCreditorsValue[index] * 1000000 / balanceAfter;
       }
       else
       {
@@ -179,13 +180,13 @@ contract Lottery {
   // Second step of the user interaction with the contract. Claiming a bet.
   function claimBets() public {
     uint placementTime = betsPerUser[msg.sender].placementTime;
-    require(placementTime > 0 && placementTime <= block.number - 2);
+    require(placementTime > 0 && placementTime <= block.number - 1);
 
     /* Make sure the hash is still visible
      *
      * "You can only access the hashes of the most recent 256 blocks, all other values will be zero."
      */
-    uint blockHashRandomness = uint(blockhash(placementTime + 2));
+    uint blockHashRandomness = uint(blockhash(placementTime + 1));
     uint profitFinney = 0;
 
     // In case the block hash is not visible the user will not be able to claim

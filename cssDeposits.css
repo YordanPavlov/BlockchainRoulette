@@ -3,6 +3,14 @@ html, body {
 		margin: 0;
 }
 
+#statusField {
+    margin: 10px 10px 10px 10px;
+}
+
+#controlField {
+    margin: 10px 10px 10px 10px;
+}
+
 #ownerControls{
 	display: none;
 }
@@ -11,18 +19,45 @@ html, body {
 	display: none;
 }
 
-table {
-    width: 100%;
-		border: 1px solid black;
+.oneLineContainer {
+  display: flex;
+  flex-wrap: nowrap;
+  margin: 10px 0px 10px 0px;
+}
+
+.oneLineContainerEmbeded {
+  display: flex;
+}
+
+.leftTitle {
+  width: 20%;
+}
+
+#depositsField {
+    margin: 10px 10px 10px 10px;
+		border-style: solid;
+    border-width: 1px;
 		border-collapse: collapse;
 		text-align: center;
 }
 
-table td {
-  border: 1px solid black;
+.tableFirstRow {
+  width: 50%;
+  border-style: solid;
+  border-width: 1px;
+  border-collapse: collapse;
 }
 
-th {
-    height: 50px;
+.tableSecondRow {
+  width: 25%;
+  border-style: solid;
+  border-width: 1px;
+  border-collapse: collapse;
+}
 
+.tableThirdRow {
+  width: 25%;
+  border-style: solid;
+  border-width: 1px;
+  border-collapse: collapse;
 }

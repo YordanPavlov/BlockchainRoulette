@@ -5,8 +5,9 @@ var offerBettingOriginal;
 
 const FINNEY_TO_WEI = 1000000000000000;
 const MAX_CREDITORS = 10;
+const INITIAL_USER_STATUS = "Not a creditor."
 
-function checkMetamaskAndStartDeposit() {
+function checkMetamaskAndStartAll() {
 
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
   if (typeof web3 !== 'undefined') {
@@ -20,7 +21,7 @@ function checkMetamaskAndStartDeposit() {
   }
 
   //var lotteryAddress = "0x2E86cd048BDFb15dBE96b21ACd8231Ed14ED14B6";
-  var lotteryAddress = "0xda804bab18dc8e15b2b6377da7af800f43cdb624";
+  var lotteryAddress = "0xce2f8ea45eb9453fb88914c3981c9e8c5da73de5";
   lottery = new web3js.eth.Contract(lotteryABI, lotteryAddress);
   //lotteryEvents = new web3jsEvents.eth.Contract(lotteryABI, lotteryAddress);
 
@@ -31,21 +32,28 @@ function checkMetamaskAndStartDeposit() {
         userAccount = accounts[0];
         if(userAccount > 0) {
           $("#initialError").hide();
-          $("#initialError").text("Your address is: " + userAccount);
+          $("#userAddress").text(userAccount);
         }
     }
   });
 
-  setInterval(printUserControlsAndCreditors, 5000);
+  setTimeout(printUserControlsAndCreditors, 5000);
 
 }
 
 function offerOwnerControls() {
-  $("#ownerControls").show();
+  //$("#ownerControls").show();
+  $('#ownerControls').css('display', 'flex')
 }
 
 function offerDeposits()
 {
+  if(document.getElementById("userStatus").innerText === INITIAL_USER_STATUS) {
+      $("#userStatus").text("You are a creditor.");
+  } else {
+    $("#userStatus").append("You are a creditor.");
+  }
+
   $("#creditorControls").show();
 }
 
@@ -63,26 +71,20 @@ function printExistingCreditors() {
               } else {
                 console.log(creditorsPPM);
 
-                  var table     = document.createElement("table");
-                  var tableBody = document.createElement('tbody');
-
-                  var rowHead = tableBody.insertRow(0);
-                  var cell1Head = rowHead.insertCell(0);
-                  var cell2Head = rowHead.insertCell(1);
-                  var cell3Head = rowHead.insertCell(2);
-
-                  cell1Head.innerHTML = "Creditor";
-                  cell2Head.innerHTML = "Value";
-                  cell3Head.innerHTML = "Percent of total value";
+                  var newDepositDataField = document.createElement('div');
+                  newDepositDataField.id = 'depositDataField';
 
                   for (var i = 0; i < MAX_CREDITORS; i++) {
                       if(!web3.toBigNumber(creditorsList[i]).isZero()) {
-                        // Create an empty <tr> element and add it to the 1st position of the table:
-                        var row = tableBody.insertRow(1);
+                        var newOneLineDiv = document.createElement('div');
+                        newOneLineDiv.className = 'oneLineContainerEmbeded';
 
-                        var cell1 = row.insertCell(0);
-                        var cell2 = row.insertCell(1);
-                        var cell3 = row.insertCell(2);
+                        var cell1 = document.createElement('div');
+                        cell1.className = 'tableFirstRow';
+                        var cell2 = document.createElement('div');
+                        cell2.className = 'tableSecondRow';
+                        var cell3 = document.createElement('div');
+                        cell3.className = 'tableThirdRow';
 
                         cell1.innerText = creditorsList[i];
                         var ppm = creditorsPPM[i];
@@ -91,6 +93,12 @@ function printExistingCreditors() {
                         cell2.innerText = valueFinney + " Finney";
                         // Reduce PPM to Percent
                         cell3.innerText = ppm / 10000 + "%";
+
+                        newOneLineDiv.appendChild((cell1));
+                        newOneLineDiv.appendChild((cell2));
+                        newOneLineDiv.appendChild((cell3));
+
+                        newDepositDataField.appendChild(newOneLineDiv);
                       }
 
                       if(userAccount == creditorsList[i]) {
@@ -98,8 +106,7 @@ function printExistingCreditors() {
                       }
                   }
 
-                  table.appendChild(tableBody);
-                  $("#deposits").replaceWith(table);
+                  $("#depositDataField").replaceWith(newDepositDataField);
               }
             });
       }
@@ -114,7 +121,7 @@ function printUserControlsAndCreditors() {
             console.log("Owner is: " + result);
 
             if(result == userAccount){
-              $("#userStatus").text("You are the contract owner.");
+              $("#userStatus").text("You are the contract owner. ");
               offerOwnerControls();
             }
         }
@@ -196,7 +203,7 @@ function updateBalance(newBalance) {
         alert("Problem connecting to contract or contract not ready.");
       } else {
           contractBalance = result / FINNEY_TO_WEI;
-          $("#contractBalance").text("Contract balance is: " + contractBalance + " finney");
+          $("#contractBalance").text(contractBalance + " finney");
       }
     });
 }
